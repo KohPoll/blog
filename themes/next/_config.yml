@@ -72,6 +72,10 @@ duoshuo_info:
   ua_enable: true
   admin_enable: false
   user_id: 0
+duoshuo_shortname: kohpoll
+
+# baidu analytics
+baidu_analytics: 3d4b009637c78a52e39293f31e08417c
 
 ## DO NOT EDIT THE FOLLOWING SETTINGS
 ## UNLESS YOU KNOW WHAT YOU ARE DOING
