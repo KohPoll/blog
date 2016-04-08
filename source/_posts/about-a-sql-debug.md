@@ -79,7 +79,7 @@ exports.query = function(sql, cb) {
 
 对于隔离性，还会分出多个隔离级别：
 
-| 隔离级别 | 脏读 | 不可重复读 | 幻读 | 
+| 隔离级别 | 脏读 | 不可重复读 | 幻读 |
 | :-----: | :-----:| :------: | :----: |
 | 未提交读 | 可能 | 可能 | 可能 |
 | 已提交读 | 不可能 | 可能 | 可能 |
@@ -102,7 +102,7 @@ MySQL 默认的级别是 REPEATABLE READ（可重复读），这表示在 MySQL 
 
 查看慢查询（slow_queries.log）日志里面对应的查询信息：
 
-```
+```sql
 # Query_time: 56.855324  Lock_time: 48.054343 Rows_sent: 0  Rows_examined: 29400
 update testScore set uiTaskId=81041 where token='e7d7d8f0-8f4b-11e5-99be-9dfbb419755e';
 ```
@@ -119,3 +119,5 @@ update testScore set uiTaskId=81041 where token='e7d7d8f0-8f4b-11e5-99be-9dfbb41
   - http://www.cnblogs.com/zhoujinyi/p/3437475.html
   - http://stackoverflow.com/questions/5836623/getting-lock-wait-timeout-exceeded-try-restarting-transaction-even-though-im
   - https://www.percona.com/blog/2015/04/09/innodb-locks-deadlocks-without-index-different-isolation-level/
+
+本文采用 [知识共享署名 3.0 中国大陆许可协议](http://creativecommons.org/licenses/by/3.0/cn)，可自由转载、引用，但需署名作者且注明文章出处 。

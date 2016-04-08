@@ -227,9 +227,9 @@ MySQL 中和时间相关的数据类型主要包括：`YEAR`、`TIME`、`DATE`�
 
 ```sql
 CREATE TABLE `tests` (
-    `id` INTEGER NOT NULL auto_increment , 
-    `datetime` DATETIME, 
-    `timestamp` TIMESTAMP, 
+    `id` INTEGER NOT NULL auto_increment ,
+    `datetime` DATETIME,
+    `timestamp` TIMESTAMP,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 ```
@@ -328,7 +328,7 @@ SqlString.dateToString = function(date, timeZone, dialect) {
 代码逻辑如下：
   1. 检查 `timeZone` 是否存在，如果存在（存在指的是类似 `America/New_York` 这样的表示法），调用 `tz` 设置 `date` 的时区。
   2. 如果不存在（类似 `+00:00`、`-07:00` 这样的表示法），调用 `utcOffset` 设置 `date` 的相对 `UTC` 的时区偏移。
-  3. 最后使用上面设置的时区偏移将其 `format` 成 MySQL 需要的 `YYYY-MM-DD HH:mm:ss` 格式。 
+  3. 最后使用上面设置的时区偏移将其 `format` 成 MySQL 需要的 `YYYY-MM-DD HH:mm:ss` 格式。
 
 举两个例子。
 
@@ -396,16 +396,16 @@ sequelize 的 `timezone` 默认是 `+00:00`，所以，我们在 JavaScript 中�
 
 sequelize 默认将 `time_zone` 设置为 `+00:00`，当我们执行下面代码时：
 
-```javascript 
+```javascript
 Test.create({
     'datetime': new Date('2016-01-10 20:07:00'),
     'timestamp': new Date('2016-01-10 20:07:00')
   });
-``` 
+```
 
 会进行上面提到的 JavaScript 时间到 MySQL 时间字符串的转换，生成的 SQL 其实是（时间被转换为了 `UTC` 时间，比本地时间早了 8 小时）：
 
-```sql 
+```sql
 INSERT INTO `tests` (`id`,`datetime`,`timestamp`) VALUES (DEFAULT,'2016-01-10 12:07:00','2016-01-10 12:07:00');
 ```
 
@@ -466,3 +466,5 @@ Sun Jan 10 2016 20:07:00 GMT+0800 (CST)
   - <http://sequelize.readthedocs.org/en/latest/api/sequelize/>
   - <https://github.com/felixge/node-mysql>
   - 《MySQL 技术内幕》
+
+本文采用 [知识共享署名 3.0 中国大陆许可协议](http://creativecommons.org/licenses/by/3.0/cn)，可自由转载、引用，但需署名作者且注明文章出处 。

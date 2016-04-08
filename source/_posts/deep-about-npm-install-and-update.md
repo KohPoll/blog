@@ -154,3 +154,5 @@ npm 是一个方便的 Node 模块分发、管理工具。我们平常会使用 
   - <https://docs.npmjs.com/cli/install>
   - <https://github.com/semantic-release/semantic-release>
   - <https://medium.com/greenkeeper-blog/one-simple-trick-for-javascript-package-maintainers-to-avoid-breaking-their-user-s-software-and-to-6edf06dc5617>
+
+本文采用 [知识共享署名 3.0 中国大陆许可协议](http://creativecommons.org/licenses/by/3.0/cn)，可自由转载、引用，但需署名作者且注明文章出处 。

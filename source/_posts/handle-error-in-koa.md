@@ -222,13 +222,13 @@ app.use(function* (next) {
         'status': status,
         'message': message
       };
-      if (status == 500) { 
+      if (status == 500) {
         // 触发 koa 统一错误事件，可以打印出详细的错误堆栈 log
         this.app.emit('error', e, this);
       }
       return;
     }
-    
+
     this.status = status;
     // 根据 status 渲染不同的页面
     if (status == 403) {
@@ -255,9 +255,9 @@ const router = new (require('koa-router'));
 
 router.get('/some_page', function* () {
   // 直接抛出错误，被中间件捕获后当成 500 错误
-  throw new PageError('发生了一个致命错误'); 
+  throw new PageError('发生了一个致命错误');
   throw new JsonError('发送了一个致命错误');
-  
+
   // 带 status 的错误，被中间件捕获后特殊处理
   this.throw(403, new PageError('没有权限访问'));
   this.throw(403, new JsonError('没有权限访问'));
@@ -293,3 +293,5 @@ util.inherits(PageError, Error);
   - https://imququ.com/post/generator-function-in-es6.html
   - http://purplebamboo.github.io/2014/05/24/koa-source-analytics-1/
   - http://purplebamboo.github.io/2015/01/16/koa-source-analytics-4/
+
+本文采用 [知识共享署名 3.0 中国大陆许可协议](http://creativecommons.org/licenses/by/3.0/cn)，可自由转载、引用，但需署名作者且注明文章出处 。

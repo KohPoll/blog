@@ -38,14 +38,14 @@ tags:
 先来列出我们需要些什么：
   - 在发布前“冻结”依赖模块的版本号。这让我们对安装的依赖有信心，依赖模块的版本都是我们验证、测试过的。
   - 在发布前“打包”依赖模块到自己项目。这让我们可以坦然面对我们依赖的某个模块“没有了”这样的囧境。
- 
+
 ### 冻结依赖模块
 
 冻结依赖模块的版本号最简单的办法就是直接在 package.json 里面写死版本号，但是这解决不了深度依赖的问题。我们来看个例子。
 
 假设有下面这样的依赖：
 
-```
+```powershell
 A@0.1.0
 └─┬ B@0.0.1
   └── C@0.0.1
@@ -102,7 +102,7 @@ DESCRIPTION
 
 还是上面的例子：
 
-```
+```powershell
 A@0.1.0
 └─┬ B@0.0.1
   └── C@0.0.1
@@ -110,7 +110,7 @@ A@0.1.0
 
 执行 `shrinkpack` 后，会生成下面的打包目录：
 
-```
+```powershell
 node_shrinkpack
  - B-0.0.1.tgz
  - C-0.0.1.tgz
@@ -141,7 +141,7 @@ node_shrinkpack
 可能有人会说，为啥不直接把 `node_modules` 目录提交进仓库算了？原因主要是这样：
   - 有些模块需要编译，编译是和环境有关的，你当前的环境编译可用，其他环境直接使用该模块不一定能用。
   - `node_modules` 目录里面啥东西都有，太凌乱，很容易把提交给搅乱。diff 时突然 diff 出 `node_modules` 下的源代码、README，你应该不想这样吧？
- 
+
 只存储模块的 tgz 包，安装编译的过程交给 NPM 命令更明智。
 
 ### 新方式
@@ -152,7 +152,7 @@ node_shrinkpack
   3. 执行 `shrinkpack .` 将依赖模块打包进仓库
   4. 提交代码（注意要将 `npm-shrinkwrap.json` 和 `node_shrinkpack` 一起提交哦）
   5. 发布模块或者部署应用
- 
+
 如果你觉得这样很繁琐，可以定义一个 NPM 命令：
 
 ```json
@@ -174,3 +174,4 @@ node_shrinkpack
   - https://nodejs.org/en/blog/npm/managing-node-js-dependencies-with-shrinkwrap/
   - http://blog.keithcirkel.co.uk/how-to-use-npm-as-a-build-tool/
 
+本文采用 [知识共享署名 3.0 中国大陆许可协议](http://creativecommons.org/licenses/by/3.0/cn)，可自由转载、引用，但需署名作者且注明文章出处 。

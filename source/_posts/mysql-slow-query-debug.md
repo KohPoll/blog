@@ -111,3 +111,5 @@ order by t1.create_date DESC
   - http://www.cnblogs.com/zhengyun_ustc/p/slowquery3.html
   - http://dev.mysql.com/doc/refman/5.5/en/explain-output.html
   - https://docs.djangoproject.com/en/1.9/ref/models/querysets/
+
+本文采用 [知识共享署名 3.0 中国大陆许可协议](http://creativecommons.org/licenses/by/3.0/cn)，可自由转载、引用，但需署名作者且注明文章出处 。

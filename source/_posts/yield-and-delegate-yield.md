@@ -260,3 +260,5 @@ console.log(result); // -> 输出：run->runner
   - <http://purplebamboo.github.io/2014/05/24/koa-source-analytics-2/>
   - <http://www.jongleberry.com/delegating-yield.html>
   - <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/yield*>
+
+本文采用 [知识共享署名 3.0 中国大陆许可协议](http://creativecommons.org/licenses/by/3.0/cn)，可自由转载、引用，但需署名作者且注明文章出处 。

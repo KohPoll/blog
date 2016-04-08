@@ -86,12 +86,12 @@ var User = sequelize.define(
 
 ```sql
 CREATE TABLE IF NOT EXISTS `users` (
-    `id` INTEGER NOT NULL auto_increment , 
-    `emp_id` CHAR(10) NOT NULL UNIQUE, 
-    `nick` CHAR(10) NOT NULL, 
+    `id` INTEGER NOT NULL auto_increment ,
+    `emp_id` CHAR(10) NOT NULL UNIQUE,
+    `nick` CHAR(10) NOT NULL,
     `department` VARCHAR(64),
-    `created_at` DATETIME NOT NULL, 
-    `updated_at` DATETIME NOT NULL, 
+    `created_at` DATETIME NOT NULL,
+    `updated_at` DATETIME NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 ```
@@ -178,9 +178,9 @@ console.log(user.get({'plain': true}));
 `SQL`：
 
 ```sql
-INSERT INTO `users` 
-(`id`, `emp_id`, `nick`, `department`, `updated_at`, `created_at`) 
-VALUES 
+INSERT INTO `users`
+(`id`, `emp_id`, `nick`, `department`, `updated_at`, `created_at`)
+VALUES
 (DEFAULT, '1', '小红', '技术部', '2015-11-02 14:49:54', '2015-11-02 14:49:54');
 ```
 
@@ -206,8 +206,8 @@ console.log(user.get({'plain': true}));
 `SQL`：
 
 ```sql
-UPDATE `users` 
-SET `nick` = '小白白', `updated_at` = '2015-11-02 15:00:04' 
+UPDATE `users`
+SET `nick` = '小白白', `updated_at` = '2015-11-02 15:00:04'
 WHERE `id` = 1;
 ```
 
@@ -321,11 +321,11 @@ console.log(users);
 `SQL`：
 
 ```sql
-SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at` 
-FROM `users` AS `user` 
-WHERE 
-    `user`.`id` IN (1, 2, 3) AND 
-    `user`.`nick`='a' AND 
+SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at`
+FROM `users` AS `user`
+WHERE
+    `user`.`id` IN (1, 2, 3) AND
+    `user`.`nick`='a' AND
     `user`.`department` IS NULL;
 ```
 
@@ -377,29 +377,29 @@ var users = yield User.findAll({
 `SQL`：
 
 ```sql
-SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at` 
-FROM `users` AS `user` 
-WHERE 
+SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at`
+FROM `users` AS `user`
+WHERE
 (
-    `user`.`id` = 1 AND 
-    `user`.`id` != 2 AND 
-    `user`.`id` > 6 AND 
-    `user`.`id` >= 6 AND 
-    `user`.`id` < 10 AND 
-    `user`.`id` <= 10 AND 
-    `user`.`id` BETWEEN 6 AND 10 AND 
+    `user`.`id` = 1 AND
+    `user`.`id` != 2 AND
+    `user`.`id` > 6 AND
+    `user`.`id` >= 6 AND
+    `user`.`id` < 10 AND
+    `user`.`id` <= 10 AND
+    `user`.`id` BETWEEN 6 AND 10 AND
     `user`.`id` NOT BETWEEN 11 AND 15 AND
-    `user`.`id` IN (1, 2) AND 
+    `user`.`id` IN (1, 2) AND
     `user`.`id` NOT IN (3, 4)
-) 
-AND 
+)
+AND
 (
-    `user`.`nick` LIKE '%a%' AND 
+    `user`.`nick` LIKE '%a%' AND
     `user`.`nick` NOT LIKE '%a'
-) 
-AND 
+)
+AND
 (
-    `user`.`updated_at` IS NULL AND 
+    `user`.`updated_at` IS NULL AND
     `user`.`updated_at` IS NOT NULL
 );
 ```
@@ -428,11 +428,11 @@ var users = yield User.findAll({
 `SQL`：
 
 ```sql
-SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at` 
-FROM `users` AS `user` 
-WHERE 
+SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at`
+FROM `users` AS `user`
+WHERE
 (
-    `user`.`id` IN (1, 2) AND 
+    `user`.`id` IN (1, 2) AND
     `user`.`nick` IS NULL
 );
 ```
@@ -455,11 +455,11 @@ var users = yield User.findAll({
 `SQL`：
 
 ```sql
-SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at` 
-FROM `users` AS `user` 
-WHERE 
+SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at`
+FROM `users` AS `user`
+WHERE
 (
-    `user`.`id` IN (1, 2) OR 
+    `user`.`id` IN (1, 2) OR
     `user`.`nick` IS NULL
 );
 ```
@@ -482,11 +482,11 @@ var users = yield User.findAll({
 `SQL`：
 
 ```sql
-SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at` 
-FROM `users` AS `user` 
-WHERE 
+SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at`
+FROM `users` AS `user`
+WHERE
 NOT (
-    `user`.`id` IN (1, 2) AND 
+    `user`.`id` IN (1, 2) AND
     `user`.`nick` IS NULL
 );
 ```
@@ -512,7 +512,7 @@ function translate(where) {
             // 操作符转换
             for (opk, opv of v) {
                 // op将opk转换对应的SQL表示
-                => k + op(opk, opv) + AND; 
+                => k + op(opk, opv) + AND;
             }
         }
 
@@ -596,22 +596,22 @@ var users = yield User.findAll({
 `SQL`：
 
 ```sql
-SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at` 
-FROM `users` AS `user` 
-WHERE 
-    `user`.`id` IN (3, 4) 
-AND 
-NOT 
+SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at`
+FROM `users` AS `user`
+WHERE
+    `user`.`id` IN (3, 4)
+AND
+NOT
 (
-    `user`.`id` IN (1, 2) 
-    AND 
+    `user`.`id` IN (1, 2)
+    AND
     (`user`.`id` IN (1, 2) OR `user`.`nick` IS NULL)
 )
-AND 
+AND
 (
     `user`.`id` IN (1, 2) AND `user`.`nick` IS NULL
-) 
-AND 
+)
+AND
 (
     `user`.`id` IN (1, 2) OR `user`.`nick` IS NULL
 );
@@ -633,8 +633,8 @@ var users = yield User.findAll({
 `SQL`：
 
 ```sql
-SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at` 
-FROM `users` AS `user` 
+SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at`
+FROM `users` AS `user`
 ORDER BY `user`.`id` DESC, `user`.`nick`;
 ```
 
@@ -653,8 +653,8 @@ var users = yield User.findAll({
 `SQL`：
 
 ```sql
-SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at` 
-FROM `users` AS `user` 
+SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at`
+FROM `users` AS `user`
 LIMIT 80, 20;
 ```
 
@@ -675,12 +675,12 @@ user = yield User.findOne({
 `SQL`：
 
 ```sql
-SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at` 
-FROM `users` AS `user` 
+SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at`
+FROM `users` AS `user`
 WHERE `user`.`id` = 1 LIMIT 1;
 
-SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at` 
-FROM `users` AS `user` 
+SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at`
+FROM `users` AS `user`
 WHERE `user`.`nick` = 'a' LIMIT 1;
 ```
 
@@ -701,8 +701,8 @@ console.log(result);
 ```sql
 SELECT count(*) AS `count` FROM `users` AS `user`;
 
-SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at` 
-FROM `users` AS `user` 
+SELECT `id`, `emp_id`, `nick`, `department`, `created_at`, `updated_at`
+FROM `users` AS `user`
 LIMIT 20;
 ```
 
@@ -727,9 +727,9 @@ var users = yield User.bulkCreate(
 `SQL`：
 
 ```sql
-INSERT INTO `users` 
-    (`id`,`emp_id`,`nick`,`created_at`,`updated_at`) 
-VALUES 
+INSERT INTO `users`
+    (`id`,`emp_id`,`nick`,`created_at`,`updated_at`)
+VALUES
     (NULL,'a','a','2015-11-03 02:43:30','2015-11-03 02:43:30'),
     (NULL,'b','b','2015-11-03 02:43:30','2015-11-03 02:43:30'),
     (NULL,'c','c','2015-11-03 02:43:30','2015-11-03 02:43:30');
@@ -755,8 +755,8 @@ var affectedRows = yield User.update(
 `SQL`：
 
 ```sql
-UPDATE `users` 
-SET `nick`='hhhh',`updated_at`='2015-11-03 02:51:05' 
+UPDATE `users`
+SET `nick`='hhhh',`updated_at`='2015-11-03 02:51:05'
 WHERE `id` IN (2, 3, 4);
 ```
 
@@ -811,7 +811,7 @@ var Account = sequelize.define('account',
     }
 );
 
-/* 
+/*
  * User的实例对象将拥有getAccount、setAccount、addAccount方法
  */
 User.hasOne(Account);
@@ -825,20 +825,20 @@ Account.belongsTo(User);
 
 ```sql
 CREATE TABLE IF NOT EXISTS `users` (
-    `id` INTEGER NOT NULL auto_increment , 
-    `emp_id` CHAR(10) NOT NULL UNIQUE, 
-    `created_at` DATETIME NOT NULL, 
-    `updated_at` DATETIME NOT NULL, 
+    `id` INTEGER NOT NULL auto_increment ,
+    `emp_id` CHAR(10) NOT NULL UNIQUE,
+    `created_at` DATETIME NOT NULL,
+    `updated_at` DATETIME NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `accounts` (
-    `id` INTEGER NOT NULL auto_increment , 
-    `email` CHAR(20) NOT NULL, 
-    `created_at` DATETIME NOT NULL, 
-    `updated_at` DATETIME NOT NULL, 
-    `user_id` INTEGER, 
-    PRIMARY KEY (`id`), 
+    `id` INTEGER NOT NULL auto_increment ,
+    `email` CHAR(20) NOT NULL,
+    `created_at` DATETIME NOT NULL,
+    `updated_at` DATETIME NOT NULL,
+    `user_id` INTEGER,
+    PRIMARY KEY (`id`),
     FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 ```
@@ -862,14 +862,14 @@ console.log(account.get({'plain': true}));
 `SQL`：
 
 ```sql
-INSERT INTO `users` 
-(`id`,`emp_id`,`updated_at`,`created_at`) 
-VALUES 
+INSERT INTO `users`
+(`id`,`emp_id`,`updated_at`,`created_at`)
+VALUES
 (DEFAULT,'1','2015-11-03 06:24:53','2015-11-03 06:24:53');
 
-INSERT INTO `accounts` 
-(`id`,`email`,`user_id`,`updated_at`,`created_at`) 
-VALUES 
+INSERT INTO `accounts`
+(`id`,`email`,`user_id`,`updated_at`,`created_at`)
+VALUES
 (DEFAULT,'a',1,'2015-11-03 06:24:53','2015-11-03 06:24:53');
 ```
 
@@ -890,12 +890,12 @@ console.log(anotherAccount);
 `SQL`：
 
 ```sql
-INSERT INTO `accounts` 
-(`id`,`email`,`updated_at`,`created_at`) 
-VALUES 
+INSERT INTO `accounts`
+(`id`,`email`,`updated_at`,`created_at`)
+VALUES
 (DEFAULT,'b','2015-11-03 06:37:14','2015-11-03 06:37:14');
 
-SELECT `id`, `email`, `created_at`, `updated_at`, `user_id` 
+SELECT `id`, `email`, `created_at`, `updated_at`, `user_id`
 FROM `accounts` AS `account` WHERE (`account`.`user_id` = 1);
 
 UPDATE `accounts` SET `user_id`=NULL,`updated_at`='2015-11-03 06:37:14' WHERE `id` = 1;
@@ -918,12 +918,12 @@ yield user.setAccount(null);
 `SQL`：
 
 ```sql
-SELECT `id`, `email`, `created_at`, `updated_at`, `user_id` 
-FROM `accounts` AS `account` 
+SELECT `id`, `email`, `created_at`, `updated_at`, `user_id`
+FROM `accounts` AS `account`
 WHERE (`account`.`user_id` = 1);
 
-UPDATE `accounts` 
-SET `user_id`=NULL,`updated_at`='2015-11-04 00:11:35' 
+UPDATE `accounts`
+SET `user_id`=NULL,`updated_at`='2015-11-04 00:11:35'
 WHERE `id` = 1;
 ```
 
@@ -945,8 +945,8 @@ console.log(account);
 `SQL`：
 
 ```sql
-SELECT `id`, `email`, `created_at`, `updated_at`, `user_id` 
-FROM `accounts` AS `account` 
+SELECT `id`, `email`, `created_at`, `updated_at`, `user_id`
+FROM `accounts` AS `account`
 WHERE (`account`.`user_id` = 1);
 ```
 
@@ -963,7 +963,7 @@ var user = yield User.findById(1, {
     'include': [Account]
 });
 console.log(user.get({'plain': true}));
-/* 
+/*
  * 输出类似：
  { id: 1,
   emp_id: '1',
@@ -981,9 +981,9 @@ console.log(user.get({'plain': true}));
 `SQL`：
 
 ```sql
-SELECT `user`.`id`, `user`.`emp_id`, `user`.`created_at`, `user`.`updated_at`, `account`.`id` AS `account.id`, `account`.`email` AS `account.email`, `account`.`created_at` AS `account.created_at`, `account`.`updated_at` AS `account.updated_at`, `account`.`user_id` AS `account.user_id` 
-FROM `users` AS `user` LEFT OUTER JOIN `accounts` AS `account` 
-ON `user`.`id` = `account`.`user_id` 
+SELECT `user`.`id`, `user`.`emp_id`, `user`.`created_at`, `user`.`updated_at`, `account`.`id` AS `account.id`, `account`.`email` AS `account.email`, `account`.`created_at` AS `account.created_at`, `account`.`updated_at` AS `account.updated_at`, `account`.`user_id` AS `account.user_id`
+FROM `users` AS `user` LEFT OUTER JOIN `accounts` AS `account`
+ON `user`.`id` = `account`.`user_id`
 WHERE `user`.`id` = 1 LIMIT 1;
 ```
 
@@ -1038,20 +1038,20 @@ Note.belongsTo(User);
 
 ```sql
 CREATE TABLE IF NOT EXISTS `users` (
-    `id` INTEGER NOT NULL auto_increment , 
-    `emp_id` CHAR(10) NOT NULL UNIQUE, 
-    `created_at` DATETIME NOT NULL, 
-    `updated_at` DATETIME NOT NULL, 
+    `id` INTEGER NOT NULL auto_increment ,
+    `emp_id` CHAR(10) NOT NULL UNIQUE,
+    `created_at` DATETIME NOT NULL,
+    `updated_at` DATETIME NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `notes` (
-    `id` INTEGER NOT NULL auto_increment , 
-    `title` CHAR(64) NOT NULL, 
-    `created_at` DATETIME NOT NULL, 
-    `updated_at` DATETIME NOT NULL, 
-    `user_id` INTEGER, 
-    PRIMARY KEY (`id`), 
+    `id` INTEGER NOT NULL auto_increment ,
+    `title` CHAR(64) NOT NULL,
+    `created_at` DATETIME NOT NULL,
+    `updated_at` DATETIME NOT NULL,
+    `user_id` INTEGER,
+    PRIMARY KEY (`id`),
     FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 ```
@@ -1075,14 +1075,14 @@ console.log(note);
 `SQL`：
 
 ```sql
-NSERT INTO `users` 
-(`id`,`emp_id`,`updated_at`,`created_at`) 
-VALUES 
+NSERT INTO `users`
+(`id`,`emp_id`,`updated_at`,`created_at`)
+VALUES
 (DEFAULT,'1','2015-11-03 23:52:05','2015-11-03 23:52:05');
 
-INSERT INTO `notes` 
-(`id`,`title`,`user_id`,`updated_at`,`created_at`) 
-VALUES 
+INSERT INTO `notes`
+(`id`,`title`,`user_id`,`updated_at`,`created_at`)
+VALUES
 (DEFAULT,'a',1,'2015-11-03 23:52:05','2015-11-03 23:52:05');
 ```
 
@@ -1102,18 +1102,18 @@ yield user.addNote(note);
 `SQL`：
 
 ```sql
-INSERT INTO `users` 
-(`id`,`emp_id`,`updated_at`,`created_at`) 
-VALUES 
+INSERT INTO `users`
+(`id`,`emp_id`,`updated_at`,`created_at`)
+VALUES
 (DEFAULT,'1','2015-11-04 00:02:56','2015-11-04 00:02:56');
 
-INSERT INTO `notes` 
-(`id`,`title`,`updated_at`,`created_at`) 
-VALUES 
+INSERT INTO `notes`
+(`id`,`title`,`updated_at`,`created_at`)
+VALUES
 (DEFAULT,'b','2015-11-04 00:02:56','2015-11-04 00:02:56');
 
-UPDATE `notes` 
-SET `user_id`=1,`updated_at`='2015-11-04 00:02:56' 
+UPDATE `notes`
+SET `user_id`=1,`updated_at`='2015-11-04 00:02:56'
 WHERE `id` IN (1);
 ```
 
@@ -1141,15 +1141,15 @@ yield user.setNotes([note3, note4]);
 
 ```sql
 /* 省去了创建语句 */
-SELECT `id`, `title`, `created_at`, `updated_at`, `user_id` 
+SELECT `id`, `title`, `created_at`, `updated_at`, `user_id`
 FROM `notes` AS `note` WHERE `note`.`user_id` = 1;
 
-UPDATE `notes` 
-SET `user_id`=NULL,`updated_at`='2015-11-04 12:45:12' 
+UPDATE `notes`
+SET `user_id`=NULL,`updated_at`='2015-11-04 12:45:12'
 WHERE `id` IN (1, 2);
 
-UPDATE `notes` 
-SET `user_id`=1,`updated_at`='2015-11-04 12:45:12' 
+UPDATE `notes`
+SET `user_id`=1,`updated_at`='2015-11-04 12:45:12'
 WHERE `id` IN (3, 4);
 ```
 
@@ -1174,11 +1174,11 @@ yield user.setNotes([]);
 `SQL`：
 
 ```sql
-SELECT `id`, `title`, `created_at`, `updated_at`, `user_id` 
+SELECT `id`, `title`, `created_at`, `updated_at`, `user_id`
 FROM `notes` AS `note` WHERE `note`.`user_id` = 1;
 
-UPDATE `notes` 
-SET `user_id`=NULL,`updated_at`='2015-11-04 12:50:08' 
+UPDATE `notes`
+SET `user_id`=NULL,`updated_at`='2015-11-04 12:50:08'
 WHERE `id` IN (1, 2);
 ```
 
@@ -1199,8 +1199,8 @@ yield user.removeNote(note);
 `SQL`：
 
 ```sql
-UPDATE `notes` 
-SET `user_id`=NULL,`updated_at`='2015-11-06 01:40:12' 
+UPDATE `notes`
+SET `user_id`=NULL,`updated_at`='2015-11-06 01:40:12'
 WHERE `user_id` = 1 AND `id` IN (1);
 ```
 
@@ -1228,8 +1228,8 @@ notes.forEach(function(note) {
 `SQL`：
 
 ```sql
-SELECT `id`, `title`, `created_at`, `updated_at`, `user_id` 
-FROM `notes` AS `note` 
+SELECT `id`, `title`, `created_at`, `updated_at`, `user_id`
+FROM `notes` AS `note`
 WHERE (`note`.`user_id` = 1 AND `note`.`title` LIKE '%a%');
 ```
 
@@ -1259,9 +1259,9 @@ notes.forEach(function(note) {
 `SQL`：
 
 ```sql
-SELECT `note`.`id`, `note`.`title`, `note`.`created_at`, `note`.`updated_at`, `note`.`user_id`, 
-`user`.`id` AS `user.id`, `user`.`emp_id` AS `user.emp_id`, `user`.`created_at` AS `user.created_at`, `user`.`updated_at` AS `user.updated_at` 
-FROM `notes` AS `note` LEFT OUTER JOIN `users` AS `user` 
+SELECT `note`.`id`, `note`.`title`, `note`.`created_at`, `note`.`updated_at`, `note`.`user_id`,
+`user`.`id` AS `user.id`, `user`.`emp_id` AS `user.emp_id`, `user`.`created_at` AS `user.created_at`, `user`.`updated_at` AS `user.updated_at`
+FROM `notes` AS `note` LEFT OUTER JOIN `users` AS `user`
 ON `note`.`user_id` = `user`.`id`
 WHERE `note`.`title` LIKE '%css%';
 ```
@@ -1285,16 +1285,16 @@ var users = yield User.findAll({
 });
 users.forEach(function(user) {
     // user的notes可以通过user.notes访问
-    console.log(user); 
+    console.log(user);
 });
 ```
 
 `SQL`：
 
 ```sql
-SELECT `user`.`id`, `user`.`emp_id`, `user`.`created_at`, `user`.`updated_at`, 
-`notes`.`id` AS `notes.id`, `notes`.`title` AS `notes.title`, `notes`.`created_at` AS `notes.created_at`, `notes`.`updated_at` AS `notes.updated_at`, `notes`.`user_id` AS `notes.user_id` 
-FROM `users` AS `user` LEFT OUTER JOIN `notes` AS `notes` 
+SELECT `user`.`id`, `user`.`emp_id`, `user`.`created_at`, `user`.`updated_at`,
+`notes`.`id` AS `notes.id`, `notes`.`title` AS `notes.title`, `notes`.`created_at` AS `notes.created_at`, `notes`.`updated_at` AS `notes.updated_at`, `notes`.`user_id` AS `notes.user_id`
+FROM `users` AS `user` LEFT OUTER JOIN `notes` AS `notes`
 ON `user`.`id` = `notes`.`user_id`
 WHERE `user`.`created_at` < '2015-11-05 01:51:35';
 ```
@@ -1333,10 +1333,10 @@ var users = yield User.findAll({
 `SQL`：
 
 ```sql
-SELECT `user`.`id`, `user`.`emp_id`, `user`.`created_at`, `user`.`updated_at`, 
-`notes`.`id` AS `notes.id`, `notes`.`title` AS `notes.title`, `notes`.`created_at` AS `notes.created_at`, `notes`.`updated_at` AS `notes.updated_at`, `notes`.`user_id` AS `notes.user_id` 
-FROM `users` AS `user` INNER JOIN `notes` AS `notes` 
-ON `user`.`id` = `notes`.`user_id` AND `notes`.`title` LIKE '%css%' 
+SELECT `user`.`id`, `user`.`emp_id`, `user`.`created_at`, `user`.`updated_at`,
+`notes`.`id` AS `notes.id`, `notes`.`title` AS `notes.title`, `notes`.`created_at` AS `notes.created_at`, `notes`.`updated_at` AS `notes.updated_at`, `notes`.`user_id` AS `notes.user_id`
+FROM `users` AS `user` INNER JOIN `notes` AS `notes`
+ON `user`.`id` = `notes`.`user_id` AND `notes`.`title` LIKE '%css%'
 WHERE `user`.`created_at` < '2015-11-05 01:58:31';
 ```
 
@@ -1387,29 +1387,29 @@ Tag.belongsToMany(Note, {'through': Tagging});
 
 ```sql
 CREATE TABLE IF NOT EXISTS `notes` (
-    `id` INTEGER NOT NULL auto_increment , 
-    `title` CHAR(64) NOT NULL, 
-    `created_at` DATETIME NOT NULL, 
-    `updated_at` DATETIME NOT NULL, 
+    `id` INTEGER NOT NULL auto_increment ,
+    `title` CHAR(64) NOT NULL,
+    `created_at` DATETIME NOT NULL,
+    `updated_at` DATETIME NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `tags` (
-    `id` INTEGER NOT NULL auto_increment , 
-    `name` CHAR(64) NOT NULL UNIQUE, 
-    `created_at` DATETIME NOT NULL, 
-    `updated_at` DATETIME NOT NULL, 
+    `id` INTEGER NOT NULL auto_increment ,
+    `name` CHAR(64) NOT NULL UNIQUE,
+    `created_at` DATETIME NOT NULL,
+    `updated_at` DATETIME NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taggings` (
-    `type` INTEGER NOT NULL, 
-    `created_at` DATETIME NOT NULL, 
-    `updated_at` DATETIME NOT NULL, 
-    `tag_id` INTEGER , 
-    `note_id` INTEGER , 
-    PRIMARY KEY (`tag_id`, `note_id`), 
-    FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`) ON DELETE CASCADE ON UPDATE CASCADE, 
+    `type` INTEGER NOT NULL,
+    `created_at` DATETIME NOT NULL,
+    `updated_at` DATETIME NOT NULL,
+    `tag_id` INTEGER ,
+    `note_id` INTEGER ,
+    PRIMARY KEY (`tag_id`, `note_id`),
+    FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (`note_id`) REFERENCES `notes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 ```
@@ -1430,19 +1430,19 @@ yield note.createTag({'name': 'tag'}, {'type': 0});
 `SQL`：
 
 ```sql
-INSERT INTO `notes` 
-(`id`,`title`,`updated_at`,`created_at`) 
-VALUES 
+INSERT INTO `notes`
+(`id`,`title`,`updated_at`,`created_at`)
+VALUES
 (DEFAULT,'note','2015-11-06 02:14:38','2015-11-06 02:14:38');
 
-INSERT INTO `tags` 
-(`id`,`name`,`updated_at`,`created_at`) 
-VALUES 
+INSERT INTO `tags`
+(`id`,`name`,`updated_at`,`created_at`)
+VALUES
 (DEFAULT,'tag','2015-11-06 02:14:38','2015-11-06 02:14:38');
 
-INSERT INTO `taggings` 
-(`tag_id`,`note_id`,`type`,`created_at`,`updated_at`) 
-VALUES 
+INSERT INTO `taggings`
+(`tag_id`,`note_id`,`type`,`created_at`,`updated_at`)
+VALUES
 (1,1,0,'2015-11-06 02:14:38','2015-11-06 02:14:38');
 ```
 
@@ -1466,19 +1466,19 @@ yield note.addTag(tag, {'type': 1});
 `SQL`：
 
 ```sql
-INSERT INTO `notes` 
-(`id`,`title`,`updated_at`,`created_at`) 
-VALUES 
+INSERT INTO `notes`
+(`id`,`title`,`updated_at`,`created_at`)
+VALUES
 (DEFAULT,'note','2015-11-06 02:20:52','2015-11-06 02:20:52');
 
-INSERT INTO `tags` 
-(`id`,`name`,`updated_at`,`created_at`) 
-VALUES 
+INSERT INTO `tags`
+(`id`,`name`,`updated_at`,`created_at`)
+VALUES
 (DEFAULT,'tag','2015-11-06 02:20:52','2015-11-06 02:20:52');
 
-INSERT INTO `taggings` 
-(`tag_id`,`note_id`,`type`,`created_at`,`updated_at`) 
-VALUES 
+INSERT INTO `taggings`
+(`tag_id`,`note_id`,`type`,`created_at`,`updated_at`)
+VALUES
 (1,1,1,'2015-11-06 02:20:52','2015-11-06 02:20:52');
 ```
 
@@ -1498,23 +1498,23 @@ yield note.addTags([tag1, tag2], {'type': 2});
 `SQL`：
 
 ```sql
-INSERT INTO `notes` 
-(`id`,`title`,`updated_at`,`created_at`) 
-VALUES 
+INSERT INTO `notes`
+(`id`,`title`,`updated_at`,`created_at`)
+VALUES
 (DEFAULT,'note','2015-11-06 02:25:18','2015-11-06 02:25:18');
 
-INSERT INTO `tags` 
-(`id`,`name`,`updated_at`,`created_at`) 
-VALUES 
+INSERT INTO `tags`
+(`id`,`name`,`updated_at`,`created_at`)
+VALUES
 (DEFAULT,'tag1','2015-11-06 02:25:18','2015-11-06 02:25:18');
 
-INSERT INTO `tags` 
-(`id`,`name`,`updated_at`,`created_at`) 
-VALUES 
+INSERT INTO `tags`
+(`id`,`name`,`updated_at`,`created_at`)
+VALUES
 (DEFAULT,'tag2','2015-11-06 02:25:18','2015-11-06 02:25:18');
 
-INSERT INTO `taggings` (`tag_id`,`note_id`,`type`,`created_at`,`updated_at`) 
-VALUES 
+INSERT INTO `taggings` (`tag_id`,`note_id`,`type`,`created_at`,`updated_at`)
+VALUES
 (1,1,2,'2015-11-06 02:25:18','2015-11-06 02:25:18'),
 (2,1,2,'2015-11-06 02:25:18','2015-11-06 02:25:18');
 ```
@@ -1541,46 +1541,46 @@ yield note.setTags([tag3, tag4], {'type': 3});
 
 ```sql
 /* 前面添加部分的sql，和上面一样*/
-INSERT INTO `notes` 
-(`id`,`title`,`updated_at`,`created_at`) 
-VALUES 
+INSERT INTO `notes`
+(`id`,`title`,`updated_at`,`created_at`)
+VALUES
 (DEFAULT,'note','2015-11-06 02:25:18','2015-11-06 02:25:18');
 
-INSERT INTO `tags` 
-(`id`,`name`,`updated_at`,`created_at`) 
-VALUES 
+INSERT INTO `tags`
+(`id`,`name`,`updated_at`,`created_at`)
+VALUES
 (DEFAULT,'tag1','2015-11-06 02:25:18','2015-11-06 02:25:18');
 
-INSERT INTO `tags` 
-(`id`,`name`,`updated_at`,`created_at`) 
-VALUES 
+INSERT INTO `tags`
+(`id`,`name`,`updated_at`,`created_at`)
+VALUES
 (DEFAULT,'tag2','2015-11-06 02:25:18','2015-11-06 02:25:18');
 
-INSERT INTO `taggings` 
-(`tag_id`,`note_id`,`type`,`created_at`,`updated_at`) 
-VALUES 
+INSERT INTO `taggings`
+(`tag_id`,`note_id`,`type`,`created_at`,`updated_at`)
+VALUES
 (1,1,2,'2015-11-06 02:25:18','2015-11-06 02:25:18'),
 (2,1,2,'2015-11-06 02:25:18','2015-11-06 02:25:18');
 
 /* 更改部分的sql */
-INSERT INTO `tags` 
-(`id`,`name`,`updated_at`,`created_at`) 
-VALUES 
+INSERT INTO `tags`
+(`id`,`name`,`updated_at`,`created_at`)
+VALUES
 (DEFAULT,'tag3','2015-11-06 02:29:55','2015-11-06 02:29:55');
 
-INSERT INTO `tags` 
-(`id`,`name`,`updated_at`,`created_at`) 
-VALUES 
+INSERT INTO `tags`
+(`id`,`name`,`updated_at`,`created_at`)
+VALUES
 (DEFAULT,'tag4','2015-11-06 02:29:55','2015-11-06 02:29:55');
 
 /* 先删除关系 */
-DELETE FROM `taggings` 
+DELETE FROM `taggings`
 WHERE `note_id` = 1 AND `tag_id` IN (1, 2);
 
 /* 插入新关系 */
-INSERT INTO `taggings` 
-(`tag_id`,`note_id`,`type`,`created_at`,`updated_at`) 
-VALUES 
+INSERT INTO `taggings`
+(`tag_id`,`note_id`,`type`,`created_at`,`updated_at`)
+VALUES
 (3,1,3,'2015-11-06 02:29:55','2015-11-06 02:29:55'),
 (4,1,3,'2015-11-06 02:29:55','2015-11-06 02:29:55');
 ```
@@ -1613,8 +1613,8 @@ yield note.setTags([]);
 DELETE FROM `taggings` WHERE `note_id` = 1 AND `tag_id` IN (1);
 
 /* 删除全部 */
-SELECT `type`, `created_at`, `updated_at`, `tag_id`, `note_id` 
-FROM `taggings` AS `tagging` 
+SELECT `type`, `created_at`, `updated_at`, `tag_id`, `note_id`
+FROM `taggings` AS `tagging`
 WHERE `tagging`.`note_id` = 1;
 
 DELETE FROM `taggings` WHERE `note_id` = 1 AND `tag_id` IN (2, 3);
@@ -1645,11 +1645,11 @@ tags.forEach(function(tag) {
 `SQL`：
 
 ```sql
-SELECT `tag`.`id`, `tag`.`name`, `tag`.`created_at`, `tag`.`updated_at`, 
-`tagging`.`type` AS `tagging.type`, `tagging`.`created_at` AS `tagging.created_at`, `tagging`.`updated_at` AS `tagging.updated_at`, `tagging`.`tag_id` AS `tagging.tag_id`, `tagging`.`note_id` AS `tagging.note_id` 
-FROM `tags` AS `tag` 
-INNER JOIN `taggings` AS `tagging` 
-ON 
+SELECT `tag`.`id`, `tag`.`name`, `tag`.`created_at`, `tag`.`updated_at`,
+`tagging`.`type` AS `tagging.type`, `tagging`.`created_at` AS `tagging.created_at`, `tagging`.`updated_at` AS `tagging.updated_at`, `tagging`.`tag_id` AS `tagging.tag_id`, `tagging`.`note_id` AS `tagging.note_id`
+FROM `tags` AS `tag`
+INNER JOIN `taggings` AS `tagging`
+ON
 `tag`.`id` = `tagging`.`tag_id` AND `tagging`.`note_id` = 1;
 ```
 
@@ -1673,23 +1673,23 @@ var tags = yield Tag.findAll({
 });
 tags.forEach(function(tag) {
     // tag的notes可以通过tag.notes访问，关系模型可以通过tag.notes[0].tagging访问
-    console.log(tag); 
+    console.log(tag);
 });
 ```
 
 `SQL`：
 
 ```sql
-SELECT `tag`.`id`, `tag`.`name`, `tag`.`created_at`, `tag`.`updated_at`, 
-`notes`.`id` AS `notes.id`, `notes`.`title` AS `notes.title`, `notes`.`created_at` AS `notes.created_at`, `notes`.`updated_at` AS `notes.updated_at`, 
-`notes.tagging`.`type` AS `notes.tagging.type`, `notes.tagging`.`created_at` AS `notes.tagging.created_at`, `notes.tagging`.`updated_at` AS `notes.tagging.updated_at`, `notes.tagging`.`tag_id` AS `notes.tagging.tag_id`, `notes.tagging`.`note_id` AS `notes.tagging.note_id` 
-FROM `tags` AS `tag` 
-LEFT OUTER JOIN 
+SELECT `tag`.`id`, `tag`.`name`, `tag`.`created_at`, `tag`.`updated_at`,
+`notes`.`id` AS `notes.id`, `notes`.`title` AS `notes.title`, `notes`.`created_at` AS `notes.created_at`, `notes`.`updated_at` AS `notes.updated_at`,
+`notes.tagging`.`type` AS `notes.tagging.type`, `notes.tagging`.`created_at` AS `notes.tagging.created_at`, `notes.tagging`.`updated_at` AS `notes.tagging.updated_at`, `notes.tagging`.`tag_id` AS `notes.tagging.tag_id`, `notes.tagging`.`note_id` AS `notes.tagging.note_id`
+FROM `tags` AS `tag`
+LEFT OUTER JOIN
 (
-    `taggings` AS `notes.tagging` INNER JOIN `notes` AS `notes` 
-    ON 
+    `taggings` AS `notes.tagging` INNER JOIN `notes` AS `notes`
+    ON
     `notes`.`id` = `notes.tagging`.`note_id`
-) 
+)
 ON `tag`.`id` = `notes.tagging`.`tag_id`;
 ```
 
@@ -1720,18 +1720,18 @@ notes.forEach(function(note) {
 `SQL`：
 
 ```sql
-SELECT 
-`note`.`id`, `note`.`title`, `note`.`created_at`, `note`.`updated_at`, 
-`tags`.`id` AS `tags.id`, `tags`.`name` AS `tags.name`, `tags`.`created_at` AS `tags.created_at`, `tags`.`updated_at` AS `tags.updated_at`, 
-`tags.tagging`.`type` AS `tags.tagging.type`, `tags.tagging`.`created_at` AS `tags.tagging.created_at`, `tags.tagging`.`updated_at` AS `tags.tagging.updated_at`, `tags.tagging`.`tag_id` AS `tags.tagging.tag_id`, `tags.tagging`.`note_id` AS `tags.tagging.note_id` 
-FROM `notes` AS `note` 
-LEFT OUTER JOIN 
+SELECT
+`note`.`id`, `note`.`title`, `note`.`created_at`, `note`.`updated_at`,
+`tags`.`id` AS `tags.id`, `tags`.`name` AS `tags.name`, `tags`.`created_at` AS `tags.created_at`, `tags`.`updated_at` AS `tags.updated_at`,
+`tags.tagging`.`type` AS `tags.tagging.type`, `tags.tagging`.`created_at` AS `tags.tagging.created_at`, `tags.tagging`.`updated_at` AS `tags.tagging.updated_at`, `tags.tagging`.`tag_id` AS `tags.tagging.tag_id`, `tags.tagging`.`note_id` AS `tags.tagging.note_id`
+FROM `notes` AS `note`
+LEFT OUTER JOIN
 (
-    `taggings` AS `tags.tagging` INNER JOIN `tags` AS `tags` 
-    ON 
+    `taggings` AS `tags.tagging` INNER JOIN `tags` AS `tags`
+    ON
     `tags`.`id` = `tags.tagging`.`tag_id`
-) 
-ON 
+)
+ON
 `note`.`id` = `tags.tagging`.`note_id`;
 ```
 
@@ -1743,3 +1743,4 @@ ON
 
 这些主题下次再来写写。
 
+本文采用 [知识共享署名 3.0 中国大陆许可协议](http://creativecommons.org/licenses/by/3.0/cn)，可自由转载、引用，但需署名作者且注明文章出处 。

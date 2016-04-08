@@ -51,7 +51,7 @@ tags:
 .container:before {
     content: " ";
     display: block;
-    
+
     /* 2倍 */
     padding-top: 200%;
     /* 0.5倍 */
@@ -62,3 +62,5 @@ tags:
 实际的代码示例：<http://runjs.cn/code/jqer8q5i>
 
 以上。
+
+本文采用 [知识共享署名 3.0 中国大陆许可协议](http://creativecommons.org/licenses/by/3.0/cn)，可自由转载、引用，但需署名作者且注明文章出处 。

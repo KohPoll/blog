@@ -296,8 +296,10 @@ Respond.addListener({min: 1190}, _log(1190));
 参考资料：
 - http://www.w3.org/TR/css3-mediaqueries/
 - http://dbaron.org/log/20110422-matchMedia
-- http://caniuse.com/#feat=css-mediaqueries 
+- http://caniuse.com/#feat=css-mediaqueries
 - http://caniuse.com/#feat=matchmedia
 - http://mux.alimama.com/posts/686
 - https://github.com/kissygalleryteam/responsive
 - https://github.com/paulirish/matchMedia.js
+
+本文采用 [知识共享署名 3.0 中国大陆许可协议](http://creativecommons.org/licenses/by/3.0/cn)，可自由转载、引用，但需署名作者且注明文章出处 。
