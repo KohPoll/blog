@@ -1,4 +1,5 @@
-title: Sequelize和MySQL对照
+title: 'Sequelize 和 MySQL 对照'
+date: 2015-11-12
 tags:
 ---
 
@@ -147,7 +148,7 @@ var User = sequelize.define(
 
 # 单表增删改查
 
-通过`Sequelize`获取的模型对象都是一个`DAO`（Data Access Object）对象，这些对象会拥有许多操作数据库表的实例对象方法（比如：`save`、`update`、`destroy`等），需要获取“干净”的对象可以调用`get({'plain': true})`。
+通过`Sequelize`获取的模型对象都是一个`DAO`（Data Access Object）对象，这些对象会拥有许多操作数据库表的实例对象方法（比如：`save`、`update`、`destroy`等），需要获取“干净”的`JSON`对象可以调用`get({'plain': true})`。
 
 通过模型的类方法可以获取模型对象（比如：`findById`、`findAll`等）。
 
@@ -844,7 +845,7 @@ CREATE TABLE IF NOT EXISTS `accounts` (
 
 可以看到，这种关系中外键`user_id`加在了`Account`上。另外，`Sequelize`还给我们生成了外键约束。
 
-一般来说，外键约束在有些自己定制的数据库系统里面是禁止的（比如：IDB），因为会带来一些性能问题。所以，建表的`SQL`一般就去掉约束，同时给外键加一个索引（加速查询），数据的一致性就靠应用层来保证了。
+一般来说，外键约束在有些自己定制的数据库系统里面是禁止的，因为会带来一些性能问题。所以，建表的`SQL`一般就去掉约束，同时给外键加一个索引（加速查询），数据的一致性就靠应用层来保证了。
 
 ### 关系操作
 
@@ -1740,6 +1741,5 @@ ON
 
 这篇文章已经够长了，但是其实我们还有很多没有涉及的东西，比如：聚合函数及查询（`having`、`group by`）、模型的验证（`validate`）、定义钩子（`hooks`）、索引等等。
 
-这些主题下次有时间再写写。
-
+这些主题下次再来写写。
 
