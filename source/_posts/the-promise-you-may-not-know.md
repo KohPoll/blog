@@ -401,7 +401,7 @@ later(1000)
 
 执行结果：
 
-```
+```bash
 later(1000)  later(2000)            done(later_2000)
 |-----1s-----|----------2s----------|
 ```
@@ -418,7 +418,7 @@ later(1000)
 
 执行结果：
 
-```
+```bash
 later(1000)  done(undefined)           
 |-----1s-----|
              later(2000)
@@ -435,7 +435,7 @@ later(1000)
 
 执行结果：
 
-```
+```bash
 later(1000)  done(later_1000)
 |-----1s-----|
 later(2000)
@@ -452,7 +452,7 @@ later(1000)
 
 执行结果：
 
-```
+```bash
 later(1000)  later(later_1000)
 |-----1s-----|
              throw new Error('Invalid Timeout')
