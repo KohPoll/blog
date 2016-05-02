@@ -6,6 +6,8 @@ tags:
 
 最近在看 koa 的中间件实现时，总是看到 `yield* next` 这种用法，觉得很困惑。下面是学习成果。
 
+<!-- more -->
+
 # 代理 yield
 
 我们先来看看原生语法中，代理 yield（delegating yield）的含义和用法。
