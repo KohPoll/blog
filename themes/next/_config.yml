@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------
 
 # Put your favicon.ico into `hexo-site/source/` directory.
-favicon: /blog/favicon.ico
+#favicon: /blog/favicon.ico
 
 # Set default keywords (Use a comma to separate)
 keywords: "Node.js,JavaScript,Frontend Engineer"
@@ -157,8 +157,8 @@ toc:
 
 sidebar:
   # Sidebar Position, available value: left | right
-  position: left
-  #position: right
+  #position: left
+  position: right
 
   # Sidebar Display, available value:
   #  - post    expand on posts automatically. Default.
