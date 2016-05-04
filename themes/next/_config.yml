@@ -17,8 +17,6 @@ rss:
 since: 2015
 
 
-
-
 # ---------------------------------------------------------------
 # Menu Settings
 # ---------------------------------------------------------------
@@ -57,8 +55,8 @@ menu_icons:
 
 # Schemes
 #scheme: Muse
-scheme: Mist
-#scheme: Pisces
+#scheme: Mist
+scheme: Pisces
 
 
 # ---------------------------------------------------------------
@@ -118,7 +116,8 @@ font:
 # Key is the link label showing to end users.
 # Value is the target link (E.g. GitHub: https://github.com/iissnan)
 #social:
-  #LinkLabel: Link
+#  Github: https://github.com/kohpoll
+#  Twitter: https://twitter.com/kohpoll
 
 
 # Social Links Icons
@@ -157,7 +156,6 @@ toc:
 
 sidebar:
   # Sidebar Position, available value: left | right
-  #position: left
   position: right
 
   # Sidebar Display, available value:

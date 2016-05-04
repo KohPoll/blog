@@ -5,8 +5,6 @@ tags:
 
 开始之前，我们先来一个“脑筋急转弯”。假设 `later` 函数调用后返回一个 promise 对象，下面这 4 种写法有什么区别？
 
-<!-- more -->
-
 ```javascript
 // #1
 later(1000)
@@ -28,6 +26,9 @@ later(1000)
 later(1000)
   .then(later);
 ```
+
+<!-- more -->
+
 
 大家可以先实际去运行代码看看输出结果：[#1](https://repl.it/CMAl/0)、[#2](https://repl.it/CMAm/0)、[#3](https://repl.it/CMAn/0)、[#4](https://repl.it/CMAo/0)，想想为什么是这样的输出，然后回来继续阅读。
 
