@@ -3,7 +3,7 @@ date: 2016-05-30
 tags:
 ---
 
-最近在使用 `fs.symlink` 实现软链时，发现[文档](https://nodejs.org/api/fs.html#fs_fs_symlink_target_path_type_callback)里面写的是：`fs.symlink(target, path)`；然而 `man ln` 的时候显示的是：`ln source_file target_file`；而且，`require` 模块的时候其实还会处理软链但是处理的又不是想象中那样。于是，我彻底被相关东西绕晕。这篇文章算是我的问题记录和学习笔记，希望对你有帮助。
+最近在使用 `fs.symlink` 实现软链时，发现[文档](https://nodejs.org/api/fs.html#fs_fs_symlink_target_path_type_callback)里面写的是：`fs.symlink(target, path)`；然而 `man ln` 的时候显示的是：`ln source_file target_file`；而且，`require` 模块的时候其实还会处理软链但是处理的又不是想象中那样。于是，我彻底被相关东西绕晕。这篇文章算是我的学习笔记，希望对你有帮助。
 
 <!-- more -->
 
