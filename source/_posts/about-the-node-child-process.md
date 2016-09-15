@@ -69,7 +69,7 @@ Node 实际上从语言层面就不支持创建线程，我们只有能力创建
 
 ### exec / execFile
 
-`exec(command, options, callback)` 和 `execFile(file, args, options, callback)` 比较类似，会使用一个 `Buffer` 来存储进程执行后的标准输出结果，们可以一次性在 `callback` 里面获取到。不太适合输出数据量大的场景。
+`exec(command, options, callback)` 和 `execFile(file, args, options, callback)` 比较类似，会使用一个 `Buffer` 来存储进程执行后的标准输出结果，我们可以一次性在 `callback` 里面获取到。不太适合输出数据量大的场景。
 
 需要注意的是，`exec` 会首先创建一个新的 shell 进程出来，然后执行 `command`；`execFile` 则是直接将可执行的 `file` 创建为新进程执行。所以，`execfile` 会比 `exec` 高效一些。
 
@@ -145,7 +145,7 @@ console.log('child pid:', p.pid);
 
 ### spawn
 
-`spawn(command, args, options)` 适合用在进程的输入、输出数据量比较大的情况（因为它支持以 stream 的使用方式），可以用于任何命令。
+`spawn(command, args, options)` 适合用在进程的输入、输出数据量比较大的情况（因为它支持 stream 的使用方式），可以用于任何命令。
 
 ```javascript
 // child.js
