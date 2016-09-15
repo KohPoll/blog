@@ -40,7 +40,7 @@ console.log(chalk.red('red'));
 
 ## spawn
 
-我在之前的[文章](http://kohpoll.github.io/blog/2016/04/25/about-the-node-child-process/)中介绍过 Node 子进程的用法，感兴趣的可以进行阅读。
+我在之前的[文章](https://kohpoll.github.io/blog/2016/04/25/about-the-node-child-process/)中介绍过 Node 子进程的用法，感兴趣的可以进行阅读。
 
 我比较喜欢使用 `spawn` 的方式，因为它可以通过 stream 的方式操作子进程的输出，非常方便。比如下面的代码：
 
