@@ -1,0 +1,671 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/blog/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+<link href="/blog/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/blog/css/main.css?v=" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="Node.js,JavaScript,Frontend Engineer">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="最近在使用 Node 的子进程模块实现一些功能，对相关知识进行了一个系统的学习总结，这篇文章将会简要介绍我总结的 Node 中和进程有关的内容。包括：进程和线程、Node 的单线程的真正含义、创建进程的三种方法、进程间通信、进程以及信号量。有不当之处欢迎提出，一起交流。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="你可能想知道的 Node 子进程模块">
+<meta property="og:url" content="http://kohpoll.github.io/blog/2016/04/25/about-the-node-child-process/index.html">
+<meta property="og:site_name" content="kohpoll&#39;s blog">
+<meta property="og:description" content="最近在使用 Node 的子进程模块实现一些功能，对相关知识进行了一个系统的学习总结，这篇文章将会简要介绍我总结的 Node 中和进程有关的内容。包括：进程和线程、Node 的单线程的真正含义、创建进程的三种方法、进程间通信、进程以及信号量。有不当之处欢迎提出，一起交流。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://img.alicdn.com/tps/TB1EWAuJpXXXXamXFXXXXXXXXXX-1824-1424.png">
+<meta property="og:image" content="http://img.alicdn.com/tps/TB1rFAjIpXXXXcDXVXXXXXXXXXX-1188-338.png">
+<meta property="og:updated_time" content="2020-09-17T08:30:49.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="你可能想知道的 Node 子进程模块">
+<meta name="twitter:description" content="最近在使用 Node 的子进程模块实现一些功能，对相关知识进行了一个系统的学习总结，这篇文章将会简要介绍我总结的 Node 中和进程有关的内容。包括：进程和线程、Node 的单线程的真正含义、创建进程的三种方法、进程间通信、进程以及信号量。有不当之处欢迎提出，一起交流。">
+<meta name="twitter:image" content="http://img.alicdn.com/tps/TB1EWAuJpXXXXamXFXXXXXXXXXX-1824-1424.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"hide"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 你可能想知道的 Node 子进程模块 | kohpoll's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="http://s6.cnzz.com/stat.php?id=1258937997&web_id=1258937997" type="text/javascript"></script>
+  </div>
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">kohpoll's blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                你可能想知道的 Node 子进程模块
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-04-25T00:00:00+08:00" content="2016-04-25">
+              2016-04-25
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2016/04/25/about-the-node-child-process/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/25/about-the-node-child-process/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近在使用 Node 的子进程模块实现一些功能，对相关知识进行了一个系统的学习总结，这篇文章将会简要介绍我总结的 Node 中和进程有关的内容。包括：进程和线程、Node 的单线程的真正含义、创建进程的三种方法、进程间通信、进程以及信号量。有不当之处欢迎提出，一起交流。</p>
+<a id="more"></a>
+<h2 id="进程及线程"><a href="#进程及线程" class="headerlink" title="进程及线程"></a>进程及线程</h2><p>在真正开始介绍 Node 中的 child_process 模块之前，先来简要介绍一些操作系统的基础知识。</p>
+<p>我们首先从操作系统的任务调度开始。</p>
+<p>现代的操作系统一般都是“多任务”的，可以同时运行多个任务。比如：我们可以一边听歌一边敲代码一边下载小电影，还有一些任务在后台悄悄同时运行。但是当我们只有一个 CPU 时，操作系统又是怎么做到“多任务”的？</p>
+<p>操作系统会进行调度（任务切换）来实现多任务：也就是一个任务执行一段时间后被暂停，下一个任务再执行一段时间，然后不断循环执行下去，这样每个任务都能得到交替执行。虽然是交替执行，但是CPU 执行效率很高，在各个任务间快速切换，给我们的感觉就是多个任务在“同时运行”，也就是我们说的“多任务”。</p>
+<p>上面的调度并不是真正的并行执行，真正的并行执行多个任务实际上只能在多核 CPU 上实现。但是，由于任务数量肯定会远远多于 CPU 的核心数量，操作系统也会自动把很多任务轮流调度到每个 CPU 上执行。</p>
+<p>一个任务实际上就是一个进程（Process），它是操作系统进行资源分配和调度的最小单位，是应用程序运行的载体，有自己独立的内存空间。</p>
+<p>但是有些进程并不满足同时干一件事，比如：播放器播放小电影的时候，它可以同时播放视频、音频。</p>
+<p>在一个进程内要同时干多件事就需要运行多个“子任务”，这些进程内的子任务就是线程（Thread），它是程序执行的最小单位，一个进程可以有一个或多个线程，各个线程间可以共享进程的内存空间。</p>
+<p>由于每个进程至少要干一件事，所以，一个进程至少有一个线程。当然，进程可以有多个线程，多个线程可以“同时执行”，多线程的执行方式和多进程是一样的，也是由操作系统在多个线程之间快速切换，让每个线程都短暂地交替运行，看起来就像同时执行一样。但是，线程间的上下文切换要比进程的上下文切换开销小，也快得多。</p>
+<p>我们可以通过资源管理器（windows）或者活动监视器（mac）来查看我们系统里的进程和线程，如下图是活动监视器的截图：</p>
+<p><img src="http://img.alicdn.com/tps/TB1EWAuJpXXXXamXFXXXXXXXXXX-1824-1424.png" alt="活动监视器中的进程及线程"></p>
+<p>当然也可以通过 ps、top 等命令来查看进程信息，可以参考：<a href="http://www.imooc.com/article/1071" target="_blank" rel="noopener">http://www.imooc.com/article/1071</a>。</p>
+<p>让我们总结下：</p>
+<ul>
+<li>线程是程序执行的最小单元，进程是任务调度的最小单元</li>
+<li>一个进程由一个或多个线程组成（至少一个），线程间可以共享进程的内存空间，进程间互相独立（有各自的内存空间）</li>
+<li>操作系统使用 CPU 时间分片来调度进程、线程的执行，从而实现多任务</li>
+<li>线程间的切换比进程间切换开销小</li>
+</ul>
+<h2 id="关于-Node-的单线程"><a href="#关于-Node-的单线程" class="headerlink" title="关于 Node 的单线程"></a>关于 Node 的单线程</h2><p>我们知道 Node 类似于浏览器里面的 JavaScript，是单线程的。那我们现在需要理解 Node 的单线程到底是什么意思？</p>
+<p>这里说的单线程是指我们所编写的代码运行在单线程上，实际上 Node 并不是真的“单线程”。</p>
+<p>当我们执行 <code>node app.js</code> 时启动了一个进程，但是这个进程并不是只有一个线程，而是同时创建了很多个线程（比如：异步 IO 需要的一些 IO 线程）。如下图所示（编号为 92347 的进程一共有 5 个线程）：</p>
+<p><img src="http://img.alicdn.com/tps/TB1rFAjIpXXXXcDXVXXXXXXXXXX-1188-338.png" alt="Node 的进程和线程"></p>
+<p>但是，<strong><em>仍然只有一个线程会运行我们编写的代码</em></strong>。这就是 Node 单线程的含义。</p>
+<p>Node 实际上从语言层面就不支持创建线程，我们只有能力创建进程。这让我们的程序状态单一，不用在意状态同步、死锁、上下文切换开销等等多线程编程中的头疼问题。当然，我们可以通过进程间的通信来共享一些“状态”，但并不是线程间共享的那种状态。</p>
+<p>单线程也会带来一些问题：</p>
+<ol>
+<li>无法利用多核 CPU（只能获得一个 CPU 的时间分片）</li>
+<li>错误会引起整个应用退出（整个应用就一个进程，挂了就挂了）</li>
+<li>大量计算长时间占用 CPU，导致阻塞线程内其他操作（异步 IO 发不出调用，已完成的异步 IO 回调不能及时执行）</li>
+</ol>
+<p>这些问题实际上都有对应的解决方案。我们会使用 Master-Worker 的管理方式来创建和管理多个工作进程（工作进程数量一般会等于系统 CPU 的核心数量），保证应用能够充分利用多核 CPU，同时在发生错误时可以优雅退出和自动重启（比如 <a href="https://github.com/doxout/recluster" target="_blank" rel="noopener">recluster</a> 模块）。我们会新创建一个独立进程来进行耗时的计算，然后将计算结果传回给主线程。它们本质上都在使用 Node 提供的子进程功能。</p>
+<h2 id="进程创建简明指南"><a href="#进程创建简明指南" class="headerlink" title="进程创建简明指南"></a>进程创建简明指南</h2><p>在 Node 中，大体上有三种创建进程的方法：</p>
+<ul>
+<li>exec / execFile</li>
+<li>spawn</li>
+<li>fork</li>
+</ul>
+<h3 id="exec-execFile"><a href="#exec-execFile" class="headerlink" title="exec / execFile"></a>exec / execFile</h3><p><code>exec(command, options, callback)</code> 和 <code>execFile(file, args, options, callback)</code> 比较类似，会使用一个 <code>Buffer</code> 来存储进程执行后的标准输出结果，我们可以一次性在 <code>callback</code> 里面获取到。不太适合输出数据量大的场景。</p>
+<p>需要注意的是，<code>exec</code> 会首先创建一个新的 shell 进程出来，然后执行 <code>command</code>；<code>execFile</code> 则是直接将可执行的 <code>file</code> 创建为新进程执行。所以，<code>execfile</code> 会比 <code>exec</code> 高效一些。</p>
+<p><code>exec</code> 比较适合用来执行 shell 命令，然后获取输出（比如：<code>exec(&#39;ps aux | grep &quot;node&quot;&#39;)</code>），但是 <code>execFile</code> 却没办法这么用，因为它实际上只接受一个可执行的命令，然后执行（没法使用 shell 里面的管道之类的东西）。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// child.js</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'child argv: '</span>, process.argv);</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// parent.js</span></span><br><span class="line"><span class="keyword">const</span> child_process = <span class="built_in">require</span>(<span class="string">'child_process'</span>);</span><br><span class="line"><span class="keyword">const</span> p = child_process.exec(</span><br><span class="line">  <span class="string">'node child.js a b'</span>, <span class="comment">// 执行的命令</span></span><br><span class="line">  &#123;&#125;,</span><br><span class="line">  (err, stdout, stderr) =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="comment">// err.code 是进程退出时的 exit code，非 0 都被认为错误</span></span><br><span class="line">      <span class="comment">// err.signal 是结束进程时发送给它的信号值</span></span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">'err:'</span>, err, err.code, err.signal);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'stdout:'</span>, stdout);</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'stderr:'</span>, stderr);</span><br><span class="line">  &#125;</span><br><span class="line">);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'child pid:'</span>, p.pid);</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// parent.js</span></span><br><span class="line"><span class="keyword">const</span> p = child_process.execFile(</span><br><span class="line">  <span class="string">'node'</span>, <span class="comment">// 可执行文件</span></span><br><span class="line">  [<span class="string">'child.js'</span>, <span class="string">'a'</span>, <span class="string">'b'</span>], <span class="comment">// 传递给命令的参数</span></span><br><span class="line">  &#123;&#125;,</span><br><span class="line">  (err, stdout, stderr) =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="comment">// err.code 是进程退出时的 exit code，非 0 都被认为错误</span></span><br><span class="line">      <span class="comment">// err.signal 是结束进程时发送给它的信号值</span></span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">'err:'</span>, err, err.code, err.signal);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'stdout:'</span>, stdout);</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'stderr:'</span>, stderr);</span><br><span class="line">  &#125;</span><br><span class="line">);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'child pid:'</span>, p.pid);</span><br></pre></td></tr></table></figure>
+<p>两个方法还可以传递一些配置项，如下所示：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 可以指定命令在哪个目录执行</span></span><br><span class="line">    <span class="string">'cwd'</span>: <span class="literal">null</span>,</span><br><span class="line">    <span class="comment">// 传递环境变量，node 脚本可以通过 process.env 获取到         </span></span><br><span class="line">    <span class="string">'env'</span>: &#123;&#125;,</span><br><span class="line">    <span class="comment">// 指定 stdout 输出的编码，默认用 utf8 编码为字符串（如果指定为 buffer，那 callback 的 stdout 参数将会是 Buffer）       </span></span><br><span class="line">    <span class="string">'encoding'</span>: <span class="string">'utf8'</span>,</span><br><span class="line">    <span class="comment">// 指定执行命令的 shell，默认是 /bin/sh（unix） 或者 cmd.exe（windows）</span></span><br><span class="line">    <span class="string">'shell'</span>: <span class="string">''</span>,</span><br><span class="line">    <span class="comment">// kill 进程时发送的信号量</span></span><br><span class="line">    <span class="string">'killSignal'</span>: <span class="string">'SIGTERM'</span>,</span><br><span class="line">    <span class="comment">// 子进程超时未执行完，向其发送 killSignal 指定的值来 kill 掉进程</span></span><br><span class="line">    <span class="string">'timeout'</span>: <span class="number">0</span>,</span><br><span class="line">    <span class="comment">// stdout、stderr 允许的最大输出大小（以 byte 为单位），如果超过了，子进程将被 kill 掉（发送 killSignal 值）</span></span><br><span class="line">    <span class="string">'maxBuffer'</span>: <span class="number">200</span> * <span class="number">1024</span>,</span><br><span class="line">    <span class="comment">// 指定用户 id</span></span><br><span class="line">    <span class="string">'uid'</span>: <span class="number">0</span>,</span><br><span class="line">    <span class="comment">// 指定组 id</span></span><br><span class="line">    <span class="string">'gid'</span>: <span class="number">0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="spawn"><a href="#spawn" class="headerlink" title="spawn"></a>spawn</h3><p><code>spawn(command, args, options)</code> 适合用在进程的输入、输出数据量比较大的情况（因为它支持 stream 的使用方式），可以用于任何命令。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// child.js</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'child argv: '</span>, process.argv);</span><br><span class="line">process.stdin.pipe(process.stdout);</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// parent.js</span></span><br><span class="line"><span class="keyword">const</span> p = child_process.spawn(</span><br><span class="line">  <span class="string">'node'</span>, <span class="comment">// 需要执行的命令</span></span><br><span class="line">  [<span class="string">'child.js'</span>, <span class="string">'a'</span>, <span class="string">'b'</span>], <span class="comment">// 传递的参数</span></span><br><span class="line">  &#123;&#125;</span><br><span class="line">);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'child pid:'</span>, p.pid);</span><br><span class="line">p.on(<span class="string">'exit'</span>, code =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'exit:'</span>, code);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 父进程的输入直接 pipe 给子进程（子进程可以通过 process.stdin 拿到）</span></span><br><span class="line">process.stdin.pipe(p.stdin);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 子进程的输出 pipe 给父进程的输出</span></span><br><span class="line">p.stdout.pipe(process.stdout);</span><br><span class="line"><span class="comment">/* 或者通过监听 data 事件来获取结果</span></span><br><span class="line"><span class="comment">var all = '';</span></span><br><span class="line"><span class="comment">p.stdout.on('data', data =&gt; &#123;</span></span><br><span class="line"><span class="comment">    all += data; </span></span><br><span class="line"><span class="comment">&#125;);</span></span><br><span class="line"><span class="comment">p.stdout.on('close', code =&gt; &#123;</span></span><br><span class="line"><span class="comment">    console.log('close:', code);</span></span><br><span class="line"><span class="comment">    console.log('data:', all);</span></span><br><span class="line"><span class="comment">&#125;);</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 子进程的错误输出 pipe 给父进程的错误输出</span></span><br><span class="line">p.stderr.pipe(process.stderr);</span><br></pre></td></tr></table></figure>
+<p>我们可以执行 <code>cat bigdata.txt | node parent.js</code> 来进行测试，bigdata.txt 文件的内容将被打印到终端。</p>
+<p><code>spawn</code> 方法的配置（options）如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 可以指定命令在哪个目录执行</span></span><br><span class="line">    <span class="string">'cwd'</span>: <span class="literal">null</span>,</span><br><span class="line">    <span class="comment">// 传递环境变量，node 脚本可以通过 process.env 获取到         </span></span><br><span class="line">    <span class="string">'env'</span>: &#123;&#125;,</span><br><span class="line">    <span class="comment">// 配置子进程的 IO</span></span><br><span class="line">    <span class="string">'stdio'</span>: <span class="string">'pipe'</span>,</span><br><span class="line">    <span class="comment">// 为子进程独立运行做好准备</span></span><br><span class="line">    <span class="string">'detached'</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="comment">// 指定用户 id</span></span><br><span class="line">    <span class="string">'uid'</span>: <span class="number">0</span>,</span><br><span class="line">    <span class="comment">// 指定组 id</span></span><br><span class="line">    <span class="string">'gid'</span>: <span class="number">0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们这里主要介绍下 <code>detached</code> 和 <code>stdio</code> 这两个配置。</p>
+<h4 id="stdio"><a href="#stdio" class="headerlink" title="stdio"></a>stdio</h4><p><code>stdio</code> 用来配置子进程和父进程之间的 IO 通道，可以传递一个数组或者字符串。比如，<code>[&#39;pipe&#39;, &#39;pipe&#39;, &#39;pipe&#39;]</code>，分别配置：标准输入、标准输出、标准错误。如果传递字符串，则三者将被配置成一样的值。我们简要介绍其中三个可以取的值：</p>
+<ul>
+<li>pipe（默认）：父子进程间建立 pipe 通道，可以通过 stream 的方式来操作 IO</li>
+<li>inherit：子进程直接使用父进程的 IO</li>
+<li>ignore：不建立 pipe 通道，不能 pipe、不能监听 data 事件、IO 全被忽略</li>
+</ul>
+<p>比如上面的代码如果改写成下面这样，效果完全一样（子进程直接使用了父进程的 IO）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> p = child_process.spawn(</span><br><span class="line">  <span class="string">'node'</span>, [<span class="string">'child.js'</span>, <span class="string">'a'</span>, <span class="string">'b'</span>],</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="comment">// 'stdio': ['inherit', 'inherit', 'inherit']</span></span><br><span class="line">    <span class="string">'stdio'</span>: <span class="string">'inherit'</span></span><br><span class="line">  &#125;</span><br><span class="line">);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'child pid:'</span>, p.pid);</span><br><span class="line"></span><br><span class="line">p.on(<span class="string">'exit'</span>, code =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'exit:'</span>, code);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h4 id="detached"><a href="#detached" class="headerlink" title="detached"></a>detached</h4><p><code>detached</code> 配置主要用来创建常驻的“后台”进程，比如下面的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// child.js</span></span><br><span class="line">setInterval(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'child'</span>);</span><br><span class="line">&#125;, <span class="number">1000</span>);</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// parent.js</span></span><br><span class="line"><span class="keyword">const</span> p = child_process.spawn(</span><br><span class="line">  <span class="string">'node'</span>, [<span class="string">'child.js'</span>, <span class="string">'a'</span>, <span class="string">'b'</span>],</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="string">'stdio'</span>: <span class="string">'ignore'</span>, <span class="comment">// 父子进程间不建立通道</span></span><br><span class="line">    <span class="string">'detached'</span>: <span class="literal">true</span>   <span class="comment">// 让子进程能在父进程退出后继续运行</span></span><br><span class="line">  &#125;</span><br><span class="line">);</span><br><span class="line"><span class="comment">// 默认情况，父进程会等子进程，这个方法可以让子进程完全独立运行</span></span><br><span class="line">p.unref();</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'child pid:'</span>, p.pid);</span><br><span class="line"></span><br><span class="line">p.on(<span class="string">'exit'</span>, code =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'exit:'</span>, code);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>这样就实现了常驻的后台进程，父进程退出了、shell 关掉了，子进程都会一直运行，直到手动将它 <code>kill</code> 掉。</p>
+<p>虽然在子进程里面，我们每隔 1s 就输出了一个信息，但是其实根本就看不到。如果我们想要记录子进程的输出的话，可以给它指定一个单独的 IO（不能和父进程建立 IO 通道，否则没法独立运行）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> out = fs.openSync(<span class="string">'./out.log'</span>, <span class="string">'a'</span>);</span><br><span class="line"><span class="keyword">const</span> err = fs.openSync(<span class="string">'./err.log'</span>, <span class="string">'a'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// parent.js</span></span><br><span class="line"><span class="keyword">const</span> p = child_process.spawn(</span><br><span class="line">  <span class="string">'node'</span>, [<span class="string">'child.js'</span>, <span class="string">'a'</span>, <span class="string">'b'</span>],</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="string">'stdio'</span>: [<span class="string">'ignore'</span>, out, err], <span class="comment">// 父子进程间不建立通道</span></span><br><span class="line">    <span class="string">'detached'</span>: <span class="literal">true</span>   <span class="comment">// 让子进程能在父进程退出后继续运行</span></span><br><span class="line">  &#125;</span><br><span class="line">);</span><br><span class="line"><span class="comment">// 默认情况，父进程会等子进程，这个方法可以让子进程完全独立运行</span></span><br><span class="line">p.unref();</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'child pid:'</span>, p.pid);</span><br><span class="line"></span><br><span class="line">p.on(<span class="string">'exit'</span>, code =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'exit:'</span>, code);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="fork"><a href="#fork" class="headerlink" title="fork"></a>fork</h3><p><code>fork(modulePath, args, options)</code> 实际上是 <code>spawn</code> 的一个“特例”，会创建一个新的 V8 实例，新创建的进程只能用来运行 Node 脚本，不能运行其他命令。并且会在父子进程间建立 IPC 通道，从而实现进程间通信。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// child.js</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'child argv: '</span>, process.argv);</span><br><span class="line">process.stdin.pipe(process.stdout);</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// parent.js</span></span><br><span class="line"><span class="keyword">const</span> p = child_process.fork(</span><br><span class="line">  <span class="string">'child.js'</span>, <span class="comment">// 需要执行的脚本路径</span></span><br><span class="line">  [<span class="string">'a'</span>, <span class="string">'b'</span>], <span class="comment">// 传递的参数</span></span><br><span class="line">  &#123;&#125;</span><br><span class="line">);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'child pid:'</span>, p.pid);</span><br><span class="line"></span><br><span class="line">p.on(<span class="string">'exit'</span>, code =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'exit:'</span>, code);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>上面代码的效果和使用 <code>spawn</code> 并配置 <code>stdio: inherit</code> 的效果是一致的。我们看下该方法的配置（options）就知道原因了：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 可以指定命令在哪个目录执行</span></span><br><span class="line">    <span class="string">'cwd'</span>: <span class="literal">null</span>,</span><br><span class="line">    <span class="comment">// 传递环境变量，node 脚本可以通过 process.env 获取到         </span></span><br><span class="line">    <span class="string">'env'</span>: &#123;&#125;,</span><br><span class="line">    <span class="comment">// 创建子进程使用的 node 的执行路径（默认是：process.execPath）</span></span><br><span class="line">    <span class="string">'execPath'</span>: <span class="string">''</span>,</span><br><span class="line">    <span class="comment">// 创建子进程时，传递给执行程序的参数（默认是：process.execArgv）</span></span><br><span class="line">    <span class="string">'execArgv'</span>: [],</span><br><span class="line">    <span class="comment">// 设置为 true 时，父子间将建立 IO 的 pipe 通道（pipie）；设置为 false 时（默认），子进程直接使用父进程的 IO（inherit）</span></span><br><span class="line">    <span class="string">'silent'</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="comment">// 指定用户 id</span></span><br><span class="line">    <span class="string">'uid'</span>: <span class="number">0</span>,</span><br><span class="line">    <span class="comment">// 指定组 id</span></span><br><span class="line">    <span class="string">'gid'</span>: <span class="number">0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>exec / execFile：使用 Buffer 来存储进程的输出，可以在回调里面获取输出结果，不太适合数据量大的情况；可以执行任何命令；不创建 V8 实例</li>
+<li>spawn：支持 stream 方式操作输入输出，适合数据量大的情况；可以执行任何命令；不创建 V8 实例；可以创建常驻的后台进程</li>
+<li>fork：spawn 的一个特例；只能执行 Node 脚本；会创建一个 V8 实例；会建立父子进程的 IPC 通道，能够进行通信</li>
+</ul>
+<h2 id="进程间通信"><a href="#进程间通信" class="headerlink" title="进程间通信"></a>进程间通信</h2><p>我们上面介绍的三种创建子进程的方法都会返回一个 <code>ChildProcess</code> 类的实例，它其实继承于 <code>EventEmitter</code>。</p>
+<p>我们上面已经看到了一些用法：</p>
+<ul>
+<li>获取进程的 <code>pid</code></li>
+<li>监听 <code>exit</code> 等事件（其他事件有：<code>error</code>、<code>close</code> 等）</li>
+<li>访问 <code>stdin</code>、<code>stdout</code>、<code>stderr</code> 属性（这些属性又是 <code>Stream</code> 的实例，可以像操作 stream 一样进行操作）</li>
+</ul>
+<p>这部分我们简要介绍下进程间通信的方法，主要就是通过收发消息来实现。</p>
+<p>实际上默认情况下，只有 <code>fork</code> 出的子进程才能和父进程收发消息，因为 <code>fork</code> 会建立父子进程的 IPC 通道，其他方法并不会建立这种通道。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// child.js</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'child argv: '</span>, process.argv);</span><br><span class="line">process.on(<span class="string">'message'</span>, m =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'message in child:'</span>, m);</span><br><span class="line">&#125;);</span><br><span class="line">setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  process.send(<span class="string">'send from child'</span>);</span><br><span class="line">&#125;, <span class="number">2000</span>);</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// parent.js</span></span><br><span class="line"><span class="keyword">const</span> p = child_process.fork(</span><br><span class="line">  <span class="string">'child.js'</span>, [<span class="string">'a'</span>, <span class="string">'b'</span>],</span><br><span class="line">  &#123;&#125;</span><br><span class="line">);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'child pid:'</span>, p.pid);</span><br><span class="line"></span><br><span class="line">p.on(<span class="string">'exit'</span>, code =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'exit:'</span>, code);</span><br><span class="line">&#125;);</span><br><span class="line">p.on(<span class="string">'message'</span>, m =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'message from child: '</span>, m);</span><br><span class="line">&#125;);</span><br><span class="line">p.send(<span class="string">'send from parent'</span>);</span><br></pre></td></tr></table></figure>
+<p>通过监听 <code>message</code> 事件和调用 <code>send</code> 方法，我们就可以在父子进程间进行通信了。至于通信协议，我们可以自己设计或者直接使用 <code>JSON</code>，毕竟传递的都是一推字符串，很易用。</p>
+<h2 id="进程及信号量"><a href="#进程及信号量" class="headerlink" title="进程及信号量"></a>进程及信号量</h2><p>除了我们会和进程通信外，实际上操作系统也会给进程发送一种叫做信号量的“消息”来告知进程某些事件发生了。一般会使用 <code>kill [sid] [pid]</code> 命令来发送信号量，一些常见的信号量如下：</p>
+<table>
+<thead>
+<tr>
+<th>kill [sid] [pid]</th>
+<th>process.on(evt)</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>kill -1 / kill -HUP</td>
+<td>process.on(‘SIGHUP’)</td>
+<td>一般表示进程需要重新加载配置</td>
+</tr>
+<tr>
+<td>kill -2 / kill -SIGINT / ctrl+c</td>
+<td>process.on(‘SIGINT’)</td>
+<td>退出进程</td>
+</tr>
+<tr>
+<td>kill -15 / kill -TERM</td>
+<td>process.on(‘SIGTERM’)</td>
+<td>停止进程（kill 的默认信号）</td>
+</tr>
+<tr>
+<td>kill -9 / kill -KILL</td>
+<td>监听不到</td>
+<td>kernel 直接停掉进程，并且不通知进程</td>
+</tr>
+</tbody>
+</table>
+<p>实际上 <code>process</code> 还可以监听 <code>exit</code> 事件，监听 <code>exit</code> 事件和监听信号量事件是不一样的。<code>exit</code> 事件只有在执行 <code>process.exit()</code> 或者进程结束时才会触发。</p>
+<p>所以，一个“优雅”的进程一般会绑定 <code>exit</code>、<code>SIGINT</code>、<code>SIGTERM</code> 事件，在 <code>exit</code> 事件中处理进程的清理工作，然后在 <code>SIGTERM</code>、<code>SIGINT</code> 事件中调用 <code>process.exit()</code> 来让进程真正退出。（如果你想耍流氓，可以绑定 <code>SIGTERM</code>、<code>SIGINT</code> 事件，然后啥也不做，这样除非使用 <code>kill -9</code>，你的进程将永远不会退出……）</p>
+<p>除了通过 <code>kill</code> 命令发送信号量，我们也可以使用子进程的 <code>.kill(sig)</code> 方法来发送信号，比如：<code>p.kill(&#39;SIGINT&#39;)</code>；或者 <code>process</code> 的<code>process.kill(pid, &#39;SIGINT&#39;)</code>。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://blog.csdn.net/luoweifu/article/details/46595285" target="_blank" rel="noopener">http://blog.csdn.net/luoweifu/article/details/46595285</a></li>
+<li><a href="https://nodejs.org/dist/latest-v4.x/docs/api/child_process.html" target="_blank" rel="noopener">https://nodejs.org/dist/latest-v4.x/docs/api/child_process.html</a></li>
+<li><a href="https://nodejs.org/dist/latest-v4.x/docs/api/process.html" target="_blank" rel="noopener">https://nodejs.org/dist/latest-v4.x/docs/api/process.html</a></li>
+<li><a href="http://www.imooc.com/article/1071" target="_blank" rel="noopener">http://www.imooc.com/article/1071</a></li>
+<li><a href="https://meinit.nl/the-3-most-important-kill-signals-on-the-linux-unix-command-line" target="_blank" rel="noopener">https://meinit.nl/the-3-most-important-kill-signals-on-the-linux-unix-command-line</a></li>
+<li>《深入浅出 Node.js》</li>
+</ul>
+<p>本文采用 <a href="http://creativecommons.org/licenses/by/3.0/cn" target="_blank" rel="noopener">知识共享署名 3.0 中国大陆许可协议</a>，可自由转载、引用，但需署名作者且注明文章出处 。</p>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/03/28/lessons-learn-from-left-pad/" rel="next" title="从 left-pad 事件我们可以学到什么">
+                <i class="fa fa-chevron-left"></i> 从 left-pad 事件我们可以学到什么
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/05/02/the-promise-you-may-not-know/" rel="prev" title="你可能不知道的 Promise">
+                你可能不知道的 Promise <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/04/25/about-the-node-child-process/" data-title="你可能想知道的 Node 子进程模块" data-url="http://kohpoll.github.io/blog/2016/04/25/about-the-node-child-process/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="https://avatars3.githubusercontent.com/u/1203543?v=3&s=460" alt="kohpoll">
+          <p class="site-author-name" itemprop="name">kohpoll</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/blog/archives">
+              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#进程及线程"><span class="nav-number">1.</span> <span class="nav-text">进程及线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于-Node-的单线程"><span class="nav-number">2.</span> <span class="nav-text">关于 Node 的单线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#进程创建简明指南"><span class="nav-number">3.</span> <span class="nav-text">进程创建简明指南</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#exec-execFile"><span class="nav-number">3.1.</span> <span class="nav-text">exec / execFile</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#spawn"><span class="nav-number">3.2.</span> <span class="nav-text">spawn</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#stdio"><span class="nav-number">3.2.1.</span> <span class="nav-text">stdio</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#detached"><span class="nav-number">3.2.2.</span> <span class="nav-text">detached</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fork"><span class="nav-number">3.3.</span> <span class="nav-text">fork</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">3.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#进程间通信"><span class="nav-number">4.</span> <span class="nav-text">进程间通信</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#进程及信号量"><span class="nav-number">5.</span> <span class="nav-text">进程及信号量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">kohpoll</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/blog/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v="></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v="></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/affix.js?v="></script>
+
+  <script type="text/javascript" src="/blog/js/src/schemes/pisces.js?v="></script>
+
+
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v="></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v="></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v="></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"kohpoll"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,616 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/blog/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+<link href="/blog/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/blog/css/main.css?v=" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="Node.js,JavaScript,Frontend Engineer">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="npm 是一个方便的 Node 模块分发、管理工具。我们平常会使用 npm install 安装模块，使用 npm publish 发布模块。事实上除了基本功能，这 2 个命令还有其他非常有用的特性。这篇文章会给大家介绍这些命令的一些“高级”用法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入 Node 模块的安装和发布">
+<meta property="og:url" content="http://kohpoll.github.io/blog/2015/12/29/deep-about-npm-install-and-update/index.html">
+<meta property="og:site_name" content="kohpoll&#39;s blog">
+<meta property="og:description" content="npm 是一个方便的 Node 模块分发、管理工具。我们平常会使用 npm install 安装模块，使用 npm publish 发布模块。事实上除了基本功能，这 2 个命令还有其他非常有用的特性。这篇文章会给大家介绍这些命令的一些“高级”用法。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-09-17T08:30:49.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深入 Node 模块的安装和发布">
+<meta name="twitter:description" content="npm 是一个方便的 Node 模块分发、管理工具。我们平常会使用 npm install 安装模块，使用 npm publish 发布模块。事实上除了基本功能，这 2 个命令还有其他非常有用的特性。这篇文章会给大家介绍这些命令的一些“高级”用法。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"hide"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 深入 Node 模块的安装和发布 | kohpoll's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="http://s6.cnzz.com/stat.php?id=1258937997&web_id=1258937997" type="text/javascript"></script>
+  </div>
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">kohpoll's blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                深入 Node 模块的安装和发布
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-12-29T00:00:00+08:00" content="2015-12-29">
+              2015-12-29
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2015/12/29/deep-about-npm-install-and-update/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/29/deep-about-npm-install-and-update/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>npm 是一个方便的 Node 模块分发、管理工具。我们平常会使用 <code>npm install</code> 安装模块，使用 <code>npm publish</code> 发布模块。事实上除了基本功能，这 2 个命令还有其他非常有用的特性。这篇文章会给大家介绍这些命令的一些“高级”用法。</p>
+<a id="more"></a>
+<h2 id="模块的版本号"><a href="#模块的版本号" class="headerlink" title="模块的版本号"></a>模块的版本号</h2><p>我们先来说说版本号。npm 使用的是一种叫做 <a href="http://semver.org/" target="_blank" rel="noopener">semantic version</a> 的规范，它的规则很简单，总结起来就是下面几条：</p>
+<ul>
+<li>使用 semver 的软件必须定义公开、严谨、易于理解的 API。也就是模块要提供功能给用户。</li>
+<li>版本号格式为：<code>X.Y.Z</code>，并且 X、Y、Z 均为正整数并且不断递增。X 表示大版本（major）、Y 表示小版本（minor）、Z 表示补丁版本（patch）。</li>
+<li>一个版本发布后，此版本内容不能再变更，变更必须再发布一个新版本。也就是不能覆盖发布。</li>
+<li><code>0.Y.Z</code> 表示初始版本，这种版本下的 API 不能保证稳定，随时可能变更。</li>
+<li>当进行了向后兼容的 bug 修复时，补丁版本 Z 必须增加。</li>
+<li>当引入了向后兼容的新功能时，小版本 Y 必须增加，同时 Z 必须重置为 0（小版本里面可能会包含 bug 修复）。</li>
+<li>当引入了不兼容的变更时，大版本 X 必须增加，同时 Y、Z 必须重置为 0（大版本里面可能会包含小版本或者补丁版本的改动）。</li>
+<li><code>X.Y.Z</code> 后面还可以加预发布版本号、构建信息，格式为：<code>X.Y.Z-pre_lease+build_meta</code>，比如：<code>1.0.0-alpha+20151226</code>、<code>1.0.0-beta.2+20151230</code>。</li>
+<li>进行版本号比较时，遵循下面的规则：1）依次按数值比较 X、Y、Z 的值，直到第一个不同的位置；2）如果两个版本的 X、Y、Z 都相等，含有 pre-release 版本号的较小；3）如果两个版本的 X、Y、Z 都相等并且都含有 pre-release 版本号，要单独比较 pre-release 版本。比如：<code>1.0.0 &lt; 2.0.0 &lt; 2.1.0 &lt; 2.1.1</code>，<code>1.0.0-alpha &lt; 1.0.0</code>，<code>1.0.0-alpha &lt; 1.0.0-alpha.1 &lt; 1.0.0-alpha.beta &lt; 1.0.0-beta &lt; 1.0.0-beta.2</code>。</li>
+</ul>
+<h2 id="模块的依赖管理"><a href="#模块的依赖管理" class="headerlink" title="模块的依赖管理"></a>模块的依赖管理</h2><p>在进行项目开发时，对于依赖的模块进行管理是非常必要的。这种管理主要体现在：</p>
+<ol>
+<li>如何方便的获取项目需要使用的模块</li>
+<li>当前项目依赖了哪些模块，或许还会指定模块依赖的环境（哪些模块是生产阶段依赖的、哪些是开发阶段依赖的）</li>
+<li>模块的哪些版本是和当前项目兼容的，可以直接使用</li>
+<li>其他成员（或者系统）如何方便的获取所有模块，从而能让项目正常运行</li>
+</ol>
+<p>下面我们看看 npm 是如何帮助我们解决上面这些问题的。</p>
+<h3 id="获取模块"><a href="#获取模块" class="headerlink" title="获取模块"></a>获取模块</h3><p>我们在进行项目开发时，如果需要某个功能，都会先去 npm registry 上搜一搜，看看有没有类似的模块可以直接复用，从而提高开发效率。获取模块非常简单，我们在项目的根目录直接执行 <code>npm install name</code> 就可以将模块安装在 <code>node_modules</code> 目录下，然后直接 <code>require</code> 就可使用。</p>
+<h3 id="依赖了哪些模块"><a href="#依赖了哪些模块" class="headerlink" title="依赖了哪些模块"></a>依赖了哪些模块</h3><p>上面获取模块的方法是一种“临时”起意的方式，并不能记录我们依赖模块的具体信息（除非我们自己去查找）。我们安装模块时，可以执行 <code>npm install name --save</code>（生产阶段的依赖） 或是 <code>npm install name --save-dev</code>（开发阶段的依赖），来将模块信息保存到项目的 <code>package.json</code> 文件中。</p>
+<h3 id="模块依赖表示法"><a href="#模块依赖表示法" class="headerlink" title="模块依赖表示法"></a>模块依赖表示法</h3><p>执行 <code>npm install name --save</code> 来安装模块时，npm 会首先安装模块的最新版本，然后将模块名及模块版本号以最“保险”的表示方式写入到 <code>package.json</code> 文件中。</p>
+<p>比如，我们执行 <code>npm install koa --save</code>，安装模块后，会更新<code>package.json</code> 文件的 <code>dependencies</code> 字段：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"dependencies"</span>: &#123;</span><br><span class="line">    <span class="attr">"koa"</span>: <span class="string">"~1.1.0"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>项目对模块的依赖可以使用下面的 3 种方法来表示（假设当前版本号是 1.1.0 ）：</p>
+<ol>
+<li>兼容模块新发布的补丁版本：<code>~1.1.0</code>、<code>1.1.x</code>、<code>1.1</code></li>
+<li>兼容模块新发布的小版本、补丁版本：<code>^1.1.0</code>、<code>1.x</code>、<code>1</code></li>
+<li>兼容模块新发布的大版本、小版本、补丁版本：<code>*</code>、<code>x</code></li>
+</ol>
+<p>可以看到，npm 默认会将依赖表示为最“保险”的方式（即：获取模块新发布的补丁版本），我们也可以使用 <code>npm install koa --save-exact</code> 来精确的指定模块版本（这种情况依赖就直接表示为：<code>&quot;koa&quot;: &quot;1.1.0&quot;</code>）。</p>
+<p>除了获取模块的最新版本，我们还可以精确获取模块的某个具体版本，如：<code>npm install koa@1.0.0 --save</code>，这种情况依赖就会表示为：<code>&quot;koa&quot;: &quot;~1.0.0&quot;</code>。</p>
+<h3 id="安装模块"><a href="#安装模块" class="headerlink" title="安装模块"></a>安装模块</h3><p>模块的依赖都被写入了 <code>package.json</code> 文件，其他合作者（比如：其他小伙伴、或者是部署服务）只要进入项目的根目录，执行 <code>npm install</code> 就可以将依赖的模块全部安装到 <code>node_modules</code> 目录下。</p>
+<p>比如下面的 <code>package.json</code>：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"dependencies"</span>: &#123;</span><br><span class="line">    <span class="attr">"bluebird"</span>: <span class="string">"~3.1.1"</span>,</span><br><span class="line">    <span class="attr">"request-promise"</span>: <span class="string">"^1.0.2"</span>,</span><br><span class="line">    <span class="attr">"lodash"</span>: <span class="string">"*"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"devDependencies"</span>: &#123;</span><br><span class="line">    <span class="attr">"mocha"</span>: <span class="string">"~2.3.4"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当我们执行 <code>npm install</code> 时，就会安装 <code>dependencies</code> 及 <code>devDependencies</code> 字段里列出的所有模块。如果只想安装 <code>dependencies</code> 里面列出的模块，可以使用 <code>npm install --only=production</code>。</p>
+<p>这里 npm 实际安装的模块是根据依赖的表示来决定的：</p>
+<ul>
+<li><code>&quot;bluebird&quot;: &quot;~3.1.1&quot;</code> 表示会安装最新的补丁版本。比如：安装 3.1.2、3.1.3 等，但是不会安装 3.2.0 这种小版本或者4.0.0 这种大版本（就算这些版本是最新的）。这种表示法是比较保险的，因为补丁版本只是 bug 修复，不会新增功能。</li>
+<li><code>&quot;request-promise&quot;: &quot;^1.0.2&quot;</code> 表示会安装最新的补丁版本或者小版本。比如：安装  1.1.0、1.1.1 等小版本，或者 1.0.3、1.0.4 等补丁版本，但是不会安装 2.0.0 这种大版本。而且，总是安装版本号最大的（也就是优先安装小版本）。这种表示法通常是保险的，小版本会增加向后兼容的功能。</li>
+<li><code>&quot;lodash&quot;: &quot;*&quot;</code> 表示安装最新的版本（不管这个版本是大版本、小版本、还是补丁版本）。这种表示法非常危险，如果有大版本，直接就安装了大版本，而大版本通常是不会向后兼容的，可能导致项目功能运行异常。</li>
+</ul>
+<h2 id="模块的发布"><a href="#模块的发布" class="headerlink" title="模块的发布"></a>模块的发布</h2><p>对于模块的提供者来说，每一次发布都应该尽量遵循 semver 的规范来变更版本号，不要让用户困惑甚至是想骂人……</p>
+<p>在“模块的版本号”部分我们介绍了 semver 规范，npm 也提供了相关的命令来让我们方便的进行版本号变更：</p>
+<ul>
+<li>升级补丁版本号：<code>npm version patch</code></li>
+<li>升级小版本号：<code>npm version minor</code></li>
+<li>升级大版本号：<code>npm version major</code></li>
+</ul>
+<p>一个比较合适的发布流程可以是：</p>
+<ul>
+<li>根据此次变更执行 <code>npm version [new version]</code> 命令（npm 会根据 <code>new version</code> 指定的类型更新 <code>package.json</code> 中的<code>version</code> 字段，然后进行一次 commit，最后打上一个该版本号的 tag）。</li>
+<li>执行 <code>git push origin master --tags</code>，将改动同步到远程代码仓库。</li>
+<li>执行 <code>npm publish</code>，将模块发布到 npm 仓库。</li>
+</ul>
+<h3 id="模块的-tag"><a href="#模块的-tag" class="headerlink" title="模块的 tag"></a>模块的 tag</h3><p>模块安装命令的最简形式 <code>npm install name</code> 的完整版其实应该是：<code>npm install name@latest</code>。这里的 <code>latest</code> 是模块版本的一个 tag，会对应到模块的一个具体版本。</p>
+<p>我们来看一个例子：模块 koa 在 npm registry 上的信息如下（完整版见：<a href="http://registry.npmjs.com/koa" target="_blank" rel="noopener">http://registry.npmjs.com/koa</a>）：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"koa"</span>,</span><br><span class="line">  <span class="attr">"dist-tags"</span>: &#123;</span><br><span class="line">    <span class="attr">"latest"</span>: <span class="string">"1.1.2"</span>,</span><br><span class="line">    <span class="attr">"next"</span>: <span class="string">"2.0.0-alpha.3"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"versions"</span>: &#123;</span><br><span class="line">    "0.0.1": &#123;...&#125;,</span><br><span class="line">    "1.1.2": &#123;...&#125;,</span><br><span class="line">    "2.0.0-alpha.3": &#123;...&#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当执行 <code>npm install koa</code> 时，其实是执行 <code>npm install koa@latest</code>，而这个 <code>latest</code> 等于 <code>dist-tags.latest</code>（版本 1.1.2），最后版本 1.1.2 被安装，同时依赖会标记为 <code>&quot;koa&quot;: &quot;~1.1.2&quot;</code>。</p>
+<p>当执行 <code>npm install koa@next</code> 时， <code>next</code> 等于 <code>dist-tags.next</code>（版本 2.0.0-alpha.3），最后版本 2.0.0-alpha.3 被安装，同时依赖会标记为 <code>&quot;koa&quot;: &quot;~2.0.0-alpha.3&quot;</code>。</p>
+<p>模块的维护者在进行模块发布时，可以指定将当前版本发布为哪个 tag（默认是 latest）。</p>
+<p>当执行 <code>npm publish</code> 时，会首先将当前版本发布到 npm registry，然后更新 <code>dist-tags.latest</code> 的值为新版本。</p>
+<p>当执行 <code>npm publish --tag=next</code> 时，会首先将当前版本发布到 npm registry，并且更新 <code>dist-tags.next</code> 的值为新版本。这里的 next 可以是任意有意义的命名（比如：v1.x、v2.x 等等）。</p>
+<p>可以看出，tag 就是对模块某一个版本的标记（类比 git 中 tag 是对某一次提交的标记），并且这个 tag 还可以随时更新为新的版本号。</p>
+<p>能对版本打 tag，使得我们在维护多个版本时非常方便。比如，可以像 koa 的做法一样，新开一个 next 的 tag 来提供新版本给社区试用，而不影响现在的稳定版本。等到新版本逐渐稳定后，再将其发布为 latest 即可。</p>
+<h2 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h2><p>这样看起来，发布 Node 模块是不是很简单？其实，我们没有说的东西还有很多。比如下面这些问题：</p>
+<p>每次发布前怎么保证模块提供的功能没有损坏？可以考虑接入持续集成系统，每次 push 运行单元测试，未通过不进行发布。</p>
+<p>版本号其实对维护者不友好，很容易改错，有没有什么好方法来解决？可以考虑规范提交信息，维护者只是描述变更，从提交信息中抽取变更类型然后生成正确的版本号和变更日志（比如：angular 的提交信息规范：<a href="https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit" target="_blank" rel="noopener">https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit</a>）</p>
+<p>这些问题要是可以自动化多好！我尝试搜索了下，果然有开发者在搞了。推荐大家看看这个工具：<a href="https://github.com/semantic-release/semantic-release" target="_blank" rel="noopener">https://github.com/semantic-release/semantic-release</a>，很好的解决了上面的问题。</p>
+<p>但是其实最最核心的问题是维护者得养成好习惯（写单测、规范提交信息），不然再好的工具都白搭。我也在慢慢培养中，真是痛苦……</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://semver.org/" target="_blank" rel="noopener">http://semver.org/</a></li>
+<li><a href="https://docs.npmjs.com/misc/semver" target="_blank" rel="noopener">https://docs.npmjs.com/misc/semver</a></li>
+<li><a href="https://docs.npmjs.com/cli/dist-tag" target="_blank" rel="noopener">https://docs.npmjs.com/cli/dist-tag</a></li>
+<li><a href="https://docs.npmjs.com/cli/publish" target="_blank" rel="noopener">https://docs.npmjs.com/cli/publish</a></li>
+<li><a href="https://docs.npmjs.com/cli/install" target="_blank" rel="noopener">https://docs.npmjs.com/cli/install</a></li>
+<li><a href="https://github.com/semantic-release/semantic-release" target="_blank" rel="noopener">https://github.com/semantic-release/semantic-release</a></li>
+<li><a href="https://medium.com/greenkeeper-blog/one-simple-trick-for-javascript-package-maintainers-to-avoid-breaking-their-user-s-software-and-to-6edf06dc5617" target="_blank" rel="noopener">https://medium.com/greenkeeper-blog/one-simple-trick-for-javascript-package-maintainers-to-avoid-breaking-their-user-s-software-and-to-6edf06dc5617</a></li>
+</ul>
+<p>本文采用 <a href="http://creativecommons.org/licenses/by/3.0/cn" target="_blank" rel="noopener">知识共享署名 3.0 中国大陆许可协议</a>，可自由转载、引用，但需署名作者且注明文章出处 。</p>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2015/12/22/mysql-slow-query-debug/" rel="next" title="记一次 MySQL 的慢查优化">
+                <i class="fa fa-chevron-left"></i> 记一次 MySQL 的慢查优化
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/01/06/about-a-sql-debug/" rel="prev" title="记一次 MySQL 数据库问题排查">
+                记一次 MySQL 数据库问题排查 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2015/12/29/deep-about-npm-install-and-update/" data-title="深入 Node 模块的安装和发布" data-url="http://kohpoll.github.io/blog/2015/12/29/deep-about-npm-install-and-update/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="https://avatars3.githubusercontent.com/u/1203543?v=3&s=460" alt="kohpoll">
+          <p class="site-author-name" itemprop="name">kohpoll</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/blog/archives">
+              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#模块的版本号"><span class="nav-number">1.</span> <span class="nav-text">模块的版本号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模块的依赖管理"><span class="nav-number">2.</span> <span class="nav-text">模块的依赖管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#获取模块"><span class="nav-number">2.1.</span> <span class="nav-text">获取模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#依赖了哪些模块"><span class="nav-number">2.2.</span> <span class="nav-text">依赖了哪些模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模块依赖表示法"><span class="nav-number">2.3.</span> <span class="nav-text">模块依赖表示法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装模块"><span class="nav-number">2.4.</span> <span class="nav-text">安装模块</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模块的发布"><span class="nav-number">3.</span> <span class="nav-text">模块的发布</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#模块的-tag"><span class="nav-number">3.1.</span> <span class="nav-text">模块的 tag</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他问题"><span class="nav-number">4.</span> <span class="nav-text">其他问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">kohpoll</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/blog/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v="></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v="></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/affix.js?v="></script>
+
+  <script type="text/javascript" src="/blog/js/src/schemes/pisces.js?v="></script>
+
+
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v="></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v="></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v="></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"kohpoll"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>

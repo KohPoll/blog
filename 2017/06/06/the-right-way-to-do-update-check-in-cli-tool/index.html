@@ -1,0 +1,599 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/blog/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+<link href="/blog/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/blog/css/main.css?v=" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="Node.js,JavaScript,Frontend Engineer">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="随着 Node.js 的“走红”，使用 Node.js 开发命令行工具越来越简单。一个成熟的命令行工具应该从一开始就要考虑好之后的版本更新如何“优雅”的告知用户。最好的方法当然是当用户在终端执行命令时，将相关信息提示给用户。 这篇文章将给出一个易用、高效、可定制的方法。源码在这里：https://github.com/kohpoll/pkg-updater，欢迎大家顺手点赞。接下来我将讲解其实现思">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Node.js 命令行工具检查更新的正确姿势">
+<meta property="og:url" content="http://kohpoll.github.io/blog/2017/06/06/the-right-way-to-do-update-check-in-cli-tool/index.html">
+<meta property="og:site_name" content="kohpoll&#39;s blog">
+<meta property="og:description" content="随着 Node.js 的“走红”，使用 Node.js 开发命令行工具越来越简单。一个成熟的命令行工具应该从一开始就要考虑好之后的版本更新如何“优雅”的告知用户。最好的方法当然是当用户在终端执行命令时，将相关信息提示给用户。 这篇文章将给出一个易用、高效、可定制的方法。源码在这里：https://github.com/kohpoll/pkg-updater，欢迎大家顺手点赞。接下来我将讲解其实现思">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://img.alicdn.com/tfs/TB1d.GdRFXXXXbSXFXXXXXXXXXX-752-244.png">
+<meta property="og:image" content="https://img.alicdn.com/tfs/TB1YA49RFXXXXcIXFXXXXXXXXXX-1120-298.png">
+<meta property="og:updated_time" content="2020-09-17T08:30:49.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Node.js 命令行工具检查更新的正确姿势">
+<meta name="twitter:description" content="随着 Node.js 的“走红”，使用 Node.js 开发命令行工具越来越简单。一个成熟的命令行工具应该从一开始就要考虑好之后的版本更新如何“优雅”的告知用户。最好的方法当然是当用户在终端执行命令时，将相关信息提示给用户。 这篇文章将给出一个易用、高效、可定制的方法。源码在这里：https://github.com/kohpoll/pkg-updater，欢迎大家顺手点赞。接下来我将讲解其实现思">
+<meta name="twitter:image" content="https://img.alicdn.com/tfs/TB1d.GdRFXXXXbSXFXXXXXXXXXX-752-244.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"hide"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Node.js 命令行工具检查更新的正确姿势 | kohpoll's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="http://s6.cnzz.com/stat.php?id=1258937997&web_id=1258937997" type="text/javascript"></script>
+  </div>
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">kohpoll's blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Node.js 命令行工具检查更新的正确姿势
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-06-06T00:00:00+08:00" content="2017-06-06">
+              2017-06-06
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2017/06/06/the-right-way-to-do-update-check-in-cli-tool/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/06/06/the-right-way-to-do-update-check-in-cli-tool/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>随着 Node.js 的“走红”，使用 Node.js 开发命令行工具越来越简单。一个成熟的命令行工具应该从一开始就要考虑好之后的版本更新如何“优雅”的告知用户。最好的方法当然是当用户在终端执行命令时，将相关信息提示给用户。</p>
+<p>这篇文章将给出一个易用、高效、可定制的方法。源码在这里：<a href="https://github.com/kohpoll/pkg-updater" target="_blank" rel="noopener">https://github.com/kohpoll/pkg-updater</a>，欢迎大家顺手点赞。接下来我将讲解其实现思路。</p>
+<a id="more"></a>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>我们先简单看看这个 npm 包的使用方法：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> updater = <span class="built_in">require</span>(<span class="string">'pkg-updater'</span>);</span><br><span class="line"><span class="keyword">const</span> pkg = <span class="built_in">require</span>(<span class="string">'./package.json'</span>); <span class="comment">// 命令行工具自己的 package 信息</span></span><br><span class="line"></span><br><span class="line">updater(&#123;<span class="string">'pkg'</span>: pkg&#125;) .then(<span class="function"><span class="params">()</span> =&gt;</span> &#123; <span class="comment">/* 在这里启动命令行工具 */</span> &#125;);</span><br><span class="line"></span><br><span class="line">updater(&#123;</span><br><span class="line">  <span class="string">'pkg'</span>: pkg,  </span><br><span class="line">  <span class="comment">// 自定义 registry</span></span><br><span class="line">  <span class="string">'registry'</span>: <span class="string">'http://xxx.registry.com'</span>,</span><br><span class="line">  <span class="comment">// 自定义请求的 dist-tag，默认是 latest</span></span><br><span class="line">  <span class="string">'tag'</span>: <span class="string">'next'</span>,</span><br><span class="line">  <span class="comment">// 自定义检查间隔，默认是 1h</span></span><br><span class="line">  <span class="string">'checkInterval'</span>: <span class="number">24</span> * <span class="number">60</span> * <span class="number">60</span> * <span class="number">1000</span>,</span><br><span class="line">  <span class="comment">// 自定义更新提示信息</span></span><br><span class="line">  <span class="string">'updateMessage'</span>: <span class="string">'package update from &lt;%=current%&gt; to &lt;%=latest%&gt;.'</span>,</span><br><span class="line">  <span class="comment">// 自定义强制更新的版本更新级别，默认是 major</span></span><br><span class="line">  <span class="string">'level'</span>: <span class="string">'minor'</span></span><br><span class="line">&#125;).then(<span class="function"><span class="params">()</span> =&gt;</span> &#123; <span class="comment">/* 在这里启动命令行工具 */</span> &#125;);</span><br><span class="line"></span><br><span class="line">updater(&#123;</span><br><span class="line">  <span class="string">'pkg'</span>: pkg,</span><br><span class="line">  <span class="comment">// 完全自定义版本更新时的逻辑</span></span><br><span class="line">  <span class="string">'onVersionChange'</span>: <span class="function"><span class="keyword">function</span>* (<span class="params">opts</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;).then(<span class="function"><span class="params">()</span> =&gt;</span> &#123; <span class="comment">/* 在这里启动命令行工具 */</span> &#125;);</span><br></pre></td></tr></table></figure>
+<p>效果如图：</p>
+<p><img src="https://img.alicdn.com/tfs/TB1d.GdRFXXXXbSXFXXXXXXXXXX-752-244.png" alt="兼容版本更新"></p>
+<p><img src="https://img.alicdn.com/tfs/TB1YA49RFXXXXcIXFXXXXXXXXXX-1120-298.png" alt="不兼容版本更新"></p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>使用方法很简单，我们一起来看看其实现方法。</p>
+<h3 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h3><p>我们先来梳理下需求，一个命令行检查更新器应该至少提供如下功能：</p>
+<ul>
+<li>能从远程获取最新版本</li>
+<li>能根据检查结果进行提示</li>
+<li>在版本不兼容时可以直接退出，强制用户升级程序</li>
+</ul>
+<h3 id="获取版本"><a href="#获取版本" class="headerlink" title="获取版本"></a>获取版本</h3><p>获取最新版本这个功能看起来很简单，就是发送一个请求从“某处”获取信息。但是有一些问题需要我们考虑：</p>
+<ul>
+<li>从哪里获取版本信息？</li>
+<li>获取版本信息的策略是怎样的？（什么时候获取？获取的信息如何处理？）</li>
+</ul>
+<h4 id="从哪里获取版本信息"><a href="#从哪里获取版本信息" class="headerlink" title="从哪里获取版本信息"></a>从哪里获取版本信息</h4><p>我们的命令行工具一般都是使用 npm 进行分发，最简便的方法就是直接通过 registry 获取。通过请求 <code>https://registry.npmjs.org/{name}/{dist-tag}</code> 就可以得到 package 对应 tag 的版本信息。结果类似下面这样：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// https://registry.npmjs.org/co/latest</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"co"</span>,</span><br><span class="line">  <span class="attr">"version"</span>: <span class="string">"4.5.0"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在实际实现时，我们应该允许调用者自定义 registry 地址、请求的 dist-tag 等，这样可以有更多的定制性。</p>
+<h4 id="获取版本信息的策略"><a href="#获取版本信息的策略" class="headerlink" title="获取版本信息的策略"></a>获取版本信息的策略</h4><p>首先想到的方法是用户每次执行命令时都去获取一次版本信息，这样的获取策略应该是最简单和实时的。</p>
+<p>但是这个策略其实并不合适：</p>
+<ul>
+<li>每次执行命令都要去发请求进行检查，如果网络延迟，会阻塞命令执行，影响用户体验</li>
+<li>工具的版本更新其实并不会很频繁，没有必要进行实时检查</li>
+<li>网络请求的影响因素很多，不能保证每次都成功，应该提供本地缓存机制来存储请求成功的结果，避免版本信息的不可用</li>
+</ul>
+<p>综合上面的几点，我们设计如下的获取策略：</p>
+<ul>
+<li>将发送网络请求获取版本信息的逻辑放在一个独立的后台进程去执行，保证不阻塞主命令执行</li>
+<li>请求成功后将版本信息、检查时间缓存到用户机器</li>
+<li>每次执行命令时，只是读取本地缓存下来的版本信息，不去发送网络请求</li>
+<li>根据缓存下来的检查时间和当前时间，在一个间隔之内不去额外创建后台检查进程</li>
+</ul>
+<p>将上面的策略翻译成代码大概就是下面这样：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 读取本地缓存的检查结果</span></span><br><span class="line"><span class="keyword">const</span> checkInfo = <span class="keyword">yield</span> updater.readCheckInfo(opts);</span><br><span class="line"><span class="keyword">const</span> lastCheck = checkInfo.lastCheck;</span><br><span class="line"><span class="keyword">const</span> lastVersion = checkInfo.lastVersion;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 根据版本信息提示用户</span></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 在时间间隔内，直接返回</span></span><br><span class="line"><span class="keyword">if</span> (<span class="built_in">Date</span>.now() - lastCheck &lt; opts.checkInterval) &#123;</span><br><span class="line">  <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建后台检查进程</span></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  <span class="built_in">require</span>(<span class="string">'child_process'</span>).spawn(</span><br><span class="line">    process.execPath,</span><br><span class="line">    [<span class="built_in">require</span>(<span class="string">'path'</span>).join(__dirname, <span class="string">'_check.js'</span>), <span class="built_in">JSON</span>.stringify(&#123;</span><br><span class="line">      <span class="string">'pkg'</span>: opts.pkg, <span class="comment">// package 信息</span></span><br><span class="line">      <span class="string">'tag'</span>: opts.tag, <span class="comment">// 检查的 dist-tag</span></span><br><span class="line">      <span class="string">'logFile'</span>: opts.logFile, <span class="comment">// 缓存文件路径</span></span><br><span class="line">      <span class="string">'registry'</span>: opts.registry <span class="comment">// registry 地址</span></span><br><span class="line">    &#125;)],</span><br><span class="line">    &#123;<span class="string">'stdio'</span>: [<span class="string">'ignore'</span>, <span class="string">'ignore'</span>, <span class="string">'ignore'</span>], <span class="string">'detached'</span>: <span class="literal">true</span>&#125;</span><br><span class="line">  ).unref();</span><br><span class="line">&#125; <span class="keyword">catch</span>(e) &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>后台进程执行的 <code>_check.js</code> 文件也很简单，如下所示：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> opts = <span class="built_in">JSON</span>.parse(process.argv[<span class="number">2</span>]);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> lastVersion = <span class="string">''</span>;</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  <span class="comment">// 发送请求获取最新版本</span></span><br><span class="line">  <span class="keyword">const</span> url = normalizeUrl(opts.registry + <span class="string">'/'</span> + opts.pkg.name + <span class="string">'/'</span> + (opts.tag || <span class="string">'latest'</span>));</span><br><span class="line">  <span class="keyword">const</span> res = <span class="keyword">yield</span> got.get(url, &#123;</span><br><span class="line">    <span class="string">'json'</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="string">'timeout'</span>: <span class="number">60</span> * <span class="number">1000</span></span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="keyword">if</span> (res &amp;&amp; res.body &amp;&amp; res.body.version) &#123;</span><br><span class="line">    lastVersion = res.body.version;</span><br><span class="line">  &#125;</span><br><span class="line">&#125; <span class="keyword">catch</span>(e) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果获取失败了，最新版本就是当前版本（package.version）</span></span><br><span class="line"><span class="keyword">if</span> (!lastVersion) &#123;</span><br><span class="line">  lastVersion = opts.pkg.version;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> data = <span class="keyword">yield</span> util.readJson(opts.logFile);</span><br><span class="line"><span class="keyword">if</span> (!data[opts.pkg.name]) &#123;</span><br><span class="line">  data[opts.pkg.name] = &#123;&#125;;</span><br><span class="line">&#125;</span><br><span class="line">data[opts.pkg.name].lastVersion = lastVersion; <span class="comment">// 最新版本</span></span><br><span class="line">data[opts.pkg.name].lastCheck = <span class="built_in">Date</span>.now();    <span class="comment">// 检查时间</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 写入缓存</span></span><br><span class="line"><span class="keyword">yield</span> util.writeJson(opts.logFile, data);</span><br></pre></td></tr></table></figure>
+<h3 id="提示"><a href="#提示" class="headerlink" title="提示"></a>提示</h3><p>当版本更新了，我们应该在终端提示用户。这里有两个问题：</p>
+<ul>
+<li>提示文案的问题</li>
+<li>提示文案显示间隔的问题（一直显示？每隔一段时间显示？）</li>
+</ul>
+<p>这里我们采取的策略是：</p>
+<ul>
+<li>提供默认提示文案，清晰的说明当前版本、最新版本、更新方法，允许调用者自定义提示文案</li>
+<li>只要有更新就一直显示提示文案，因为我们希望用户经常的进行更新</li>
+</ul>
+<p>实现代码大概如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 比对版本</span></span><br><span class="line"><span class="keyword">const</span> type = updater.diffType(opts.pkg.version, lastVersion, opts.level);</span><br><span class="line"><span class="keyword">if</span> (type) &#123;</span><br><span class="line">  <span class="comment">// 根据模板渲染提示信息</span></span><br><span class="line">  <span class="keyword">const</span> str = updater.template(opts.updateMessage || updater.defaultOpts.updateMessage)(&#123;</span><br><span class="line">    <span class="string">'colors'</span>: updater.colors,</span><br><span class="line">    <span class="string">'name'</span>: opts.pkg.name,</span><br><span class="line">    <span class="string">'current'</span>: opts.pkg.version,</span><br><span class="line">    <span class="string">'latest'</span>: opts.lastVersion,</span><br><span class="line">    <span class="string">'command'</span>: <span class="string">'npm i -g '</span> + opts.pkg.name</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="comment">// 进行提示</span></span><br><span class="line">  <span class="built_in">console</span>.log(</span><br><span class="line">    updater.boxen(str, &#123;</span><br><span class="line">      <span class="string">'padding'</span>: <span class="number">1</span>,</span><br><span class="line">      <span class="string">'margin'</span>: <span class="number">1</span>,</span><br><span class="line">      <span class="string">'borderStyle'</span>: <span class="string">'classic'</span></span><br><span class="line">    &#125;)</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="强制升级"><a href="#强制升级" class="headerlink" title="强制升级"></a>强制升级</h3><p>对于 npm 模块来说，版本 a.b.c 的更新一般有三种情况：</p>
+<ul>
+<li>patch：c 位，小版本更新，一般是 bug 修复</li>
+<li>minor：b 位，中版本更新，一般增加新功能、bug 修复</li>
+<li>major，a 位，大版本更新，一般是不兼容的升级</li>
+</ul>
+<p>我们希望当远程版本的更新如果是 major 形式，命令行工具将直接退出，强制用户进行升级后才能使用。这可以保证我们推送一个大版本后，所有的用户都能够马上更新掉，而不是继续使用老版本，造成版本碎片的问题。</p>
+<p>实现代码大致如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 比对版本</span></span><br><span class="line"><span class="keyword">const</span> type = updater.diffType(opts.pkg.version, lastVersion, opts.level);</span><br><span class="line"><span class="keyword">if</span> (type) &#123;</span><br><span class="line">  <span class="comment">// 根据模板渲染提示信息</span></span><br><span class="line">  <span class="keyword">const</span> str = updater.template(opts.updateMessage || updater.defaultOpts.updateMessage)(&#123;</span><br><span class="line">    <span class="string">'colors'</span>: updater.colors,</span><br><span class="line">    <span class="string">'name'</span>: opts.pkg.name,</span><br><span class="line">    <span class="string">'current'</span>: opts.pkg.version,</span><br><span class="line">    <span class="string">'latest'</span>: opts.lastVersion,</span><br><span class="line">    <span class="string">'command'</span>: <span class="string">'npm i -g '</span> + opts.pkg.name</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="comment">// 进行提示</span></span><br><span class="line">  <span class="built_in">console</span>.log(</span><br><span class="line">    updater.boxen(str, &#123;</span><br><span class="line">      <span class="string">'padding'</span>: <span class="number">1</span>,</span><br><span class="line">      <span class="string">'margin'</span>: <span class="number">1</span>,</span><br><span class="line">      <span class="string">'borderStyle'</span>: <span class="string">'classic'</span></span><br><span class="line">    &#125;)</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 不兼容的更新，直接让进程退出</span></span><br><span class="line">  <span class="keyword">if</span> (type == <span class="string">'incompatible'</span>) &#123;</span><br><span class="line">    process.exit(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>命令行检查更新看似简单，其实仔细思考，还是有很多细节。希望这篇文章对你有所启发。</p>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/09/15/spawn-and-terminal-color/" rel="next" title="在 spawn 的子进程中保持命令行颜色">
+                <i class="fa fa-chevron-left"></i> 在 spawn 的子进程中保持命令行颜色
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2020/09/17/on-typescript-type-programming/" rel="prev" title="初探 TypeScript 类型编程">
+                初探 TypeScript 类型编程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/06/06/the-right-way-to-do-update-check-in-cli-tool/" data-title="Node.js 命令行工具检查更新的正确姿势" data-url="http://kohpoll.github.io/blog/2017/06/06/the-right-way-to-do-update-check-in-cli-tool/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="https://avatars3.githubusercontent.com/u/1203543?v=3&s=460" alt="kohpoll">
+          <p class="site-author-name" itemprop="name">kohpoll</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/blog/archives">
+              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#使用"><span class="nav-number">1.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现"><span class="nav-number">2.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#需求"><span class="nav-number">2.1.</span> <span class="nav-text">需求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取版本"><span class="nav-number">2.2.</span> <span class="nav-text">获取版本</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#从哪里获取版本信息"><span class="nav-number">2.2.1.</span> <span class="nav-text">从哪里获取版本信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#获取版本信息的策略"><span class="nav-number">2.2.2.</span> <span class="nav-text">获取版本信息的策略</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#提示"><span class="nav-number">2.3.</span> <span class="nav-text">提示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#强制升级"><span class="nav-number">2.4.</span> <span class="nav-text">强制升级</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">kohpoll</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/blog/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v="></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v="></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/affix.js?v="></script>
+
+  <script type="text/javascript" src="/blog/js/src/schemes/pisces.js?v="></script>
+
+
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v="></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v="></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v="></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"kohpoll"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>

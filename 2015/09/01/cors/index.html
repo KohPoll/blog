@@ -1,0 +1,597 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/blog/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+<link href="/blog/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/blog/css/main.css?v=" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="Node.js,JavaScript,Frontend Engineer">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="最近使用了跨域 ajax 来发起 post 请求，对 cors 进行了一些学习，下面是学习的一些记录。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 cors">
+<meta property="og:url" content="http://kohpoll.github.io/blog/2015/09/01/cors/index.html">
+<meta property="og:site_name" content="kohpoll&#39;s blog">
+<meta property="og:description" content="最近使用了跨域 ajax 来发起 post 请求，对 cors 进行了一些学习，下面是学习的一些记录。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-09-17T08:30:49.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用 cors">
+<meta name="twitter:description" content="最近使用了跨域 ajax 来发起 post 请求，对 cors 进行了一些学习，下面是学习的一些记录。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"hide"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 使用 cors | kohpoll's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="http://s6.cnzz.com/stat.php?id=1258937997&web_id=1258937997" type="text/javascript"></script>
+  </div>
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">kohpoll's blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                使用 cors
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-09-01T00:00:00+08:00" content="2015-09-01">
+              2015-09-01
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2015/09/01/cors/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/09/01/cors/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近使用了跨域 ajax 来发起 post 请求，对 cors 进行了一些学习，下面是学习的一些记录。</p>
+<a id="more"></a>
+<p>web 开发中最常见的操作就是在进行接口调用。发起异步接口调用，根据返回来进行相关操作，这差不多就是目前前端开发中最常见的操作了。</p>
+<p>但是，通常的接口调用存在一定的局限性。xhr 发起的异步接口，必须遵循浏览器的”同源策略“，而 jsonp 请求只能支持跨域 GET 请求。于是，cors（Cross-Origin Resource Sharing）就产生了。</p>
+<p>遵循一定”沟通“原则的前提下，cors 允许不同域名的客户端和服务器之间进行交互。比如：a.com 下的一个页面可以向 b.com 发起 ajax 请求（甚至是 post 请求）并取得响应结果。</p>
+<h1 id="交互流程"><a href="#交互流程" class="headerlink" title="交互流程"></a>交互流程</h1><p>我们先暂时忽略浏览器发起 cors 请求的 Javascript 方法，来看看浏览器端和服务器端在 cors 请求中是怎么进行一问一答来交互的。</p>
+<p>为了方便说明，我们假设发起请求的页面地址为：<code>http://a.com/page.html</code>，请求的地址为：<code>http://api.com/cors</code></p>
+<h2 id="基本支持"><a href="#基本支持" class="headerlink" title="基本支持"></a>基本支持</h2><p>客户端请求：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET /cors HTTP/<span class="number">1.1</span></span><br><span class="line">Origin: http:<span class="comment">//a.com/page.html</span></span><br><span class="line">Host: api.com</span><br></pre></td></tr></table></figure>
+<p>服务端响应：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Access-Control-Allow-Origin: http:<span class="comment">//a.com</span></span><br></pre></td></tr></table></figure>
+<p>可以看到，在请求端，跨域请求会带上一个 <code>Origin</code> 请求头（浏览器强制进行添加），服务端在响应时必须提供 <code>Access-Control-Allow-Origin</code> 响应头，用来告知客户端此次跨域请求所允许的来源。如果不提供这个头或者提供的来源和请求的 <code>Origin</code> 不一致，将导致请求失败。这个响应头可以直接指定 <code>*</code>，表示任何来源都支持。</p>
+<p>如果我不想写 <code>*</code>，并且要支持多个来源呢？答案是不可以。<code>Access-Control-Allow-Origin</code> 响应头只允许指定一个值，要么写死的地址，要么 <code>*</code>。</p>
+<h2 id="cookie-支持"><a href="#cookie-支持" class="headerlink" title="cookie 支持"></a>cookie 支持</h2><p>默认情况下，跨域请求是不会携带 cookie 的。如果需要，客户端在发起请求时，可以指定 <code>XMLHttpRequest</code> 的实例对象的 <code>withCredentials</code> 属性为 <code>true</code>。</p>
+<p>同时，服务端在进行响应时，必须提供 <code>Access-Control-Allow-Credentials: true</code> 响应头，否则将导致请求失败。</p>
+<p>另外，需要注意的是，当指定 <code>Access-Control-Allow-Credentials: true</code> 后，<code>Access-Control-Allow-Origin</code> 响应头将不能指定 <code>*</code>，否则请求也会失败。</p>
+<h2 id="更多定制"><a href="#更多定制" class="headerlink" title="更多定制"></a>更多定制</h2><p>实际上，在发起请求时，一般会将请求区分为两种类型：</p>
+<ul>
+<li>”简单“请求<ul>
+<li>GET、HEAD、POST 请求</li>
+<li>除了浏览器自己设置的请求头外，不设置自定义请求头。下面是浏览器自己设置的请求头：<ul>
+<li>Accept</li>
+<li>Accept-Language</li>
+<li>Content-Language</li>
+<li>Content-Type</li>
+</ul>
+</li>
+<li>Content-Type 只允许是下面的值：<ul>
+<li>application/x-www-form-urlencoded</li>
+<li>multipart/form-data</li>
+<li>text/plain</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>“复杂”请求</li>
+</ul>
+<p>在发起请求时，客户端首先会检查该次请求是一个”简单“请求还是”复杂“请求，如果是”简单“请求，就直接发起请求；如果是”复杂“请求，客户端会先发起一个 <code>OPTION</code> 请求作为预检查请求，如果预检查请求通过，才会发起实际的请求。</p>
+<p>假设我们现在发起一个 <code>PUT</code> 请求，并设置两个自定义头，分别为：<code>x-custom-a: 1</code>、<code>x-custom-b: 2</code>，实际的交互流程将会如下：</p>
+<p>客户端预检查请求：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">OPTIONS /cors HTTP/<span class="number">1.1</span></span><br><span class="line">Origin: http:<span class="comment">//a.com/page.html</span></span><br><span class="line">Access-Control-Request-Method: PUT</span><br><span class="line">Access-Control-Request-Headers: x-custom-a, x-custom-b</span><br><span class="line">Host: api.com</span><br></pre></td></tr></table></figure>
+<p>服务端响应预检查请求：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Access-Control-Allow-Origin: http:<span class="comment">//a.com</span></span><br><span class="line">Access-Control-Allow-Headers: x-custom-a, x-custom-b</span><br><span class="line">Access-Control-Allow-Methods: GET, POST, PUT</span><br></pre></td></tr></table></figure>
+<p>可以看到，预检查请求会将请求方法（<code>Access-Control-Request-Method: PUT</code>）、自定义请求头（<code>Access-Control-Request-Method: x-custom-a, x-custom-b</code>）传递给服务端。</p>
+<p>服务端需要”回答“请求方法和请求头是否是”允许“的，通过指定：<code>Access-Control-Allow-Headers: x-custom-a, x-custom-b</code> 及<br><code>Access-Control-Allow-Methods: GET, POST, PUT</code>。</p>
+<p>一旦两端提供的”情报“不一致，将导致请求失败。如果成功对应上了，客户端就会发起实际的请求了。如下：</p>
+<p>客户端实际请求：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">PUT /cors HTTP/<span class="number">1.1</span></span><br><span class="line">Origin: http:<span class="comment">//a.com/page.html</span></span><br><span class="line">Host: api.com</span><br></pre></td></tr></table></figure>
+<p>服务端响应实际请求：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Access-Control-Allow-Origin: http:<span class="comment">//a.com</span></span><br></pre></td></tr></table></figure>
+<h1 id="发起-cors-请求"><a href="#发起-cors-请求" class="headerlink" title="发起 cors 请求"></a>发起 cors 请求</h1><p>浏览器对 cors 的支持情况还算令人满意，详细支持情况可以参见这里：<a href="http://caniuse.com/#search=cors" target="_blank" rel="noopener">http://caniuse.com/#search=cors</a>。</p>
+<p>chrome、firefox、safari 使用<a href="http://www.html5rocks.com/en/tutorials/file/xhr2/" target="_blank" rel="noopener">XMLHttpRequest2</a> 来发请求，而 IE8+ 则使用<a href="http://blogs.msdn.com/b/ieinternals/archive/2010/05/13/xdomainrequest-restrictions-limitations-and-workarounds.aspx" target="_blank" rel="noopener">XDomainRequest</a>。</p>
+<p>我们可以直接使用 jQuery 的 <code>ajax</code> 方法，示例如下：</p>
+<p>”简单“请求：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$.ajax(&#123;</span><br><span class="line">    method: <span class="string">'get'</span>,</span><br><span class="line">    url: <span class="string">'http://b.com:3000'</span>,</span><br><span class="line">    success: <span class="function"><span class="keyword">function</span>(<span class="params">res</span>) </span>&#123; <span class="comment">// 服务端需要响应：Access-Control-Allow-Origin</span></span><br><span class="line">        alert(res);</span><br><span class="line">    &#125;,</span><br><span class="line">    error: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>携带 cookie：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$.ajax(&#123;</span><br><span class="line">    method: <span class="string">'get'</span>,</span><br><span class="line">    url: <span class="string">'http://b.com:3000'</span>,</span><br><span class="line">    xhrFields: &#123;</span><br><span class="line">        withCredentials: <span class="literal">true</span> <span class="comment">// 服务端需要响应：Access-Control-Allow-Credentials: true</span></span><br><span class="line">    &#125;,</span><br><span class="line">    success: <span class="function"><span class="keyword">function</span>(<span class="params">res</span>) </span>&#123;</span><br><span class="line">        alert(res);</span><br><span class="line">    &#125;,</span><br><span class="line">    error: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>”复杂“请求：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$.ajax(&#123;</span><br><span class="line">    url: <span class="string">'http://b.com:3000'</span>,</span><br><span class="line">    method: <span class="string">'put'</span>, <span class="comment">// 服务端需要响应：Access-Control-Allow-Methods</span></span><br><span class="line">    headers: &#123; <span class="comment">// 服务端需要响应：Access-Control-Allow-Headers</span></span><br><span class="line">        <span class="string">'x-custom-a'</span>: <span class="number">1</span>,</span><br><span class="line">        <span class="string">'x-custom-b'</span>: <span class="number">2</span></span><br><span class="line">    &#125;,</span><br><span class="line">    success: <span class="function"><span class="keyword">function</span>(<span class="params">res</span>) </span>&#123;</span><br><span class="line">        alert(res);</span><br><span class="line">    &#125;,</span><br><span class="line">    error: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="http://www.html5rocks.com/en/tutorials/cors/" target="_blank" rel="noopener">http://www.html5rocks.com/en/tutorials/cors/</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS" target="_blank" rel="noopener">https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS</a></li>
+</ul>
+<p>本文采用 <a href="http://creativecommons.org/licenses/by/3.0/cn" target="_blank" rel="noopener">知识共享署名 3.0 中国大陆许可协议</a>，可自由转载、引用，但需署名作者且注明文章出处 。</p>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2015/08/31/equal-width-height-with-css/" rel="next" title="纯 css 实现容器动态宽高相等">
+                <i class="fa fa-chevron-left"></i> 纯 css 实现容器动态宽高相等
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2015/10/09/responsive/" rel="prev" title="谈谈响应式">
+                谈谈响应式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2015/09/01/cors/" data-title="使用 cors" data-url="http://kohpoll.github.io/blog/2015/09/01/cors/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="https://avatars3.githubusercontent.com/u/1203543?v=3&s=460" alt="kohpoll">
+          <p class="site-author-name" itemprop="name">kohpoll</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/blog/archives">
+              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#交互流程"><span class="nav-number">1.</span> <span class="nav-text">交互流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本支持"><span class="nav-number">1.1.</span> <span class="nav-text">基本支持</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cookie-支持"><span class="nav-number">1.2.</span> <span class="nav-text">cookie 支持</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#更多定制"><span class="nav-number">1.3.</span> <span class="nav-text">更多定制</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#发起-cors-请求"><span class="nav-number">2.</span> <span class="nav-text">发起 cors 请求</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">kohpoll</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/blog/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v="></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v="></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/affix.js?v="></script>
+
+  <script type="text/javascript" src="/blog/js/src/schemes/pisces.js?v="></script>
+
+
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v="></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v="></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v="></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"kohpoll"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>

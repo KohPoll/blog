@@ -1,0 +1,611 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/blog/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+<link href="/blog/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/blog/css/main.css?v=" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="Node.js,JavaScript,Frontend Engineer">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="最近遇到应用频繁的响应缓慢，无法正常访问。帮忙一起定位原因，最后定位到的问题说起来真的是很小的细节问题，但是就是这些小细节导致了服务不稳定，真是细节决定成败。这里尝试着来分享下，希望对大家有所帮助。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次 MySQL 数据库问题排查">
+<meta property="og:url" content="http://kohpoll.github.io/blog/2016/01/06/about-a-sql-debug/index.html">
+<meta property="og:site_name" content="kohpoll&#39;s blog">
+<meta property="og:description" content="最近遇到应用频繁的响应缓慢，无法正常访问。帮忙一起定位原因，最后定位到的问题说起来真的是很小的细节问题，但是就是这些小细节导致了服务不稳定，真是细节决定成败。这里尝试着来分享下，希望对大家有所帮助。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-09-17T08:30:49.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="记一次 MySQL 数据库问题排查">
+<meta name="twitter:description" content="最近遇到应用频繁的响应缓慢，无法正常访问。帮忙一起定位原因，最后定位到的问题说起来真的是很小的细节问题，但是就是这些小细节导致了服务不稳定，真是细节决定成败。这里尝试着来分享下，希望对大家有所帮助。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"hide"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 记一次 MySQL 数据库问题排查 | kohpoll's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="http://s6.cnzz.com/stat.php?id=1258937997&web_id=1258937997" type="text/javascript"></script>
+  </div>
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">kohpoll's blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                记一次 MySQL 数据库问题排查
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-01-06T00:00:00+08:00" content="2016-01-06">
+              2016-01-06
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2016/01/06/about-a-sql-debug/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/06/about-a-sql-debug/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近遇到应用频繁的响应缓慢，无法正常访问。帮忙一起定位原因，最后定位到的问题说起来真的是很小的细节问题，但是就是这些小细节导致了服务不稳定，真是细节决定成败。这里尝试着来分享下，希望对大家有所帮助。</p>
+<a id="more"></a>
+<h1 id="问题-1：占着茅坑不拉屎"><a href="#问题-1：占着茅坑不拉屎" class="headerlink" title="问题 1：占着茅坑不拉屎"></a>问题 1：占着茅坑不拉屎</h1><p>遇到问题首先要看的还是服务器错误日志。</p>
+<p>错误日志中看到频繁有这样的一个异常报错：<code>Error: ER_CON_COUNT_ERROR: Too many connections</code>。这个报错是因为数据库的所有连接被客户端都占有了，没有空闲的连接可以使用。MySQL 默认的最大并发连接数是 100，然而我们的应用这边最多可能的并发也就 30~40 个任务，怎么也不太可能报这样的错误，推测很有可能是代码里面建立连接后没有及时的进行关闭。于是我们重点看了下执行 SQL 部分的代码，大概是下面这样（使用了node-mysql库）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> mysql = <span class="built_in">require</span>(<span class="string">'mysql'</span>);</span><br><span class="line"><span class="comment">// 建立连接池</span></span><br><span class="line"><span class="keyword">var</span> pool = mysql.createPool(&#123;</span><br><span class="line">    host: <span class="string">'host'</span>,</span><br><span class="line">    user: <span class="string">'user'</span>,</span><br><span class="line">    password: <span class="string">'password'</span>,</span><br><span class="line">    database: <span class="string">'db'</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">exports.query = <span class="function"><span class="keyword">function</span>(<span class="params">sql, cb</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 从池子里面取一个可用连接</span></span><br><span class="line">    pool.getConnection(<span class="function"><span class="keyword">function</span>(<span class="params">err, connection</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (err) <span class="keyword">throw</span> err;</span><br><span class="line">        <span class="comment">// 执行sql</span></span><br><span class="line">        connection.query(sql, <span class="function"><span class="keyword">function</span>(<span class="params">err, rows, fields</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (err) &#123;</span><br><span class="line">                <span class="keyword">return</span> cosole.error(err);</span><br><span class="line">            &#125;</span><br><span class="line">            cb(rows);</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="comment">// 释放此连接</span></span><br><span class="line">        connection.release();</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>刚开始我还真没看出来有什么问题，后来仔细读了 <a href="https://github.com/felixge/node-mysql#pooling-connections" target="_blank" rel="noopener">node-mysql</a> 的文档及这个 <a href="https://github.com/felixge/node-mysql/issues/712" target="_blank" rel="noopener">issue</a>，终于发现了我们的写法是有问题的。</p>
+<p>再次看看上面的代码，<code>pool.getConnection</code> 后我们执行 <code>connection.query</code>，然后没等 SQL 执行完，直接调用了  <code>connection.release</code>，由于 JavaScript 的异步特性（虽然 SQL 可能很快就执行完，但是我们也必须在 <code>connection.query</code> 的 callback 里面才明确的知道 SQL 执行完了），这个时候此次连接是不会被释放的！代码里面所有的 SQL 执行都调用到这个函数，这意味着我们占着一堆数据库连接不释放，这时不断的有其他数据库连接过来，直接导致其他连接被阻塞，抛出连接太多的异常。这真是典型的“拉完不及时让坑，占着茅坑不拉屎”的行为。所以，我们一定要在 SQL 执行完成后就将连接及时进行释放。因为 SQL 执行一般是非常快的（零点几秒），如果我们执行完后不释放，在同一时间产生很多数据库连接时很有可能导致连接被阻塞，产生连接过多的异常。于是我们对代码进行了如下修改：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">exports.query = <span class="function"><span class="keyword">function</span>(<span class="params">sql, cb</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 从池子里面取一个可用连接</span></span><br><span class="line">    pool.getConnection(<span class="function"><span class="keyword">function</span>(<span class="params">err, connection</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (err) <span class="keyword">throw</span> err;</span><br><span class="line">        <span class="comment">// 执行sql</span></span><br><span class="line">        connection.query(sql, <span class="function"><span class="keyword">function</span>(<span class="params">err, rows, fields</span>) </span>&#123;</span><br><span class="line">            <span class="comment">// 释放连接（一定要在错误处理前，不然出错的时候也会导致该连接得不到释放）</span></span><br><span class="line">           connection.release();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (err) &#123;</span><br><span class="line">                <span class="keyword">return</span> cosole.error(err);</span><br><span class="line">            &#125;</span><br><span class="line">            cb(rows);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>也可以用更简单的写法 <code>pool.query</code>，这个方法内部会在合适的时机来释放连接，不用我们手动操作。</p>
+<p>完成此次修改后，这个异常没有再复现，但是响应缓慢的情况依然没有得到缓解。</p>
+<h1 id="问题-2：一条-UPDATE-引发的血案"><a href="#问题-2：一条-UPDATE-引发的血案" class="headerlink" title="问题 2：一条 UPDATE 引发的血案"></a>问题 2：一条 UPDATE 引发的血案</h1><p>我们再次查看了错误日志，发现了另一个异常报错：<code>Error: ER_LOCK_WAIT_TIMEOUT: Lock wait timeout exceeded; try restarting transaction</code>。这个报错就非常令人费解了，原因是锁等待超时，当前事务在等待其它事务释放锁资源造成的。</p>
+<p>我们先大概说下什么是事务（transaction）。事务应该具有 4 个属性：</p>
+<ul>
+<li>原子性（事务作为整体执行，操作要么全部执行、要么全部不执行）</li>
+<li>一致性（事务应该确保数据库状态从一个一致状态转变为另一个一致状态）</li>
+<li>隔离性（多个事务并发执行时，一个事务执行不影响其他事务执行）</li>
+<li>持久性（事务提交后，对数据库修改应该永久保存在数据库中）</li>
+</ul>
+<p>对于隔离性，还会分出多个隔离级别：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">隔离级别</th>
+<th style="text-align:center">脏读</th>
+<th style="text-align:center">不可重复读</th>
+<th style="text-align:center">幻读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">未提交读</td>
+<td style="text-align:center">可能</td>
+<td style="text-align:center">可能</td>
+<td style="text-align:center">可能</td>
+</tr>
+<tr>
+<td style="text-align:center">已提交读</td>
+<td style="text-align:center">不可能</td>
+<td style="text-align:center">可能</td>
+<td style="text-align:center">可能</td>
+</tr>
+<tr>
+<td style="text-align:center">可重复读</td>
+<td style="text-align:center">不可能</td>
+<td style="text-align:center">不可能</td>
+<td style="text-align:center">可能</td>
+</tr>
+<tr>
+<td style="text-align:center">串行化</td>
+<td style="text-align:center">不可能</td>
+<td style="text-align:center">不可能</td>
+<td style="text-align:center">不可能</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>脏读（Dirty Read）：A 事务读到 B 事务未提交的修改。</li>
+<li>不可重复读（NonRepeatable Read）：A 事务还没有结束时，B 事务也访问同一数据。在 A 事务的两次读取之间，由于 B 事务的修改，A 事务两次读到的数据可能是不一样的。</li>
+<li>幻读（Phantom Read）：A 事务对一个表中的数据进行了修改，这种修改涉及到表中的全部数据行。同时，B 事务也修改这个表中的数据，这种修改是向表中插入一行新数据。操作 A 事务的用户发现表中出现了 B 事务插入的行，就好象发生了幻觉一样。</li>
+</ul>
+<p>MySQL 默认的级别是 REPEATABLE READ（可重复读），这表示在 MySQL 的默认情况下，“脏读”、“不可重复读”是不会发生的。这就需要在更新的时候进行必要的锁定（InnoDB 是采用行级锁的方式），从而保证一致性。需要注意的是 InnoDB 的行锁是通过给索引上的索引项加锁来实现的，这个特点意味着：只有通过索引条件检索数据，InnoDB 才使用行级锁，否则，InnoDB 将使用表锁！</p>
+<p>我们数据库表是 InnoDB 引擎的表，而 MySQL 的 InnoDB 引擎是一个支持事务的引擎，其默认操作模式是 autocommit 自动提交模式。什么意思呢？除非我们显式地开始一个事务，否则每个查询都被当做一个单独的事务自动执行。</p>
+<p>回到上面的报错，错误日志里抛出异常时执行的 SQL 语句，都是类似这样的一条 UPDATE 语句：<code>update testScore set status=1,executionId=&#39;946012&#39; where token=&#39;f7900c40-8f4b-11e5-b2f1-6feca76a1bf5&#39;</code>。</p>
+<p>问题产生的原因可以这样来描述了：我们在执行 UPDATE 语句时，MySQL 会将其当成一个事务，对表的行进行锁定，这时又有其他连接进来要 UPDATE 同样的表或者 SELECT 这张表时就必须等待锁资源，而这个等待时间太久，导致超时了。</p>
+<p>什么？一个 UPDATE 语句居然会这么慢？这我简直不能接受啊！那我只能看看为啥这个语句如此慢了。</p>
+<p>查看慢查询（slow_queries.log）日志里面对应的查询信息：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Query_time: 56.855324  Lock_time: 48.054343 Rows_sent: 0  Rows_examined: 29400</span></span><br><span class="line"><span class="keyword">update</span> testScore <span class="keyword">set</span> uiTaskId=<span class="number">81041</span> <span class="keyword">where</span> token=<span class="string">'e7d7d8f0-8f4b-11e5-99be-9dfbb419755e'</span>;</span><br></pre></td></tr></table></figure>
+<p>这样一条 UPDATE 语句花了 56 秒，扫了 29400 条表记录。看到这样的执行日志，也大概猜到原因了，没有为查询字段 token 加索引！这样 MySQL 在进行 update 操作时不会走行锁，直接锁定了整张表，而这个 update 语句本身也够慢（扫了全表），那并发多个 update 更新时导致了等待锁超时。</p>
+<p>给 testScore 表的 token 字段增加了索引，终于，这个异常不再复现，响应时间开始回归正常。</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="https://github.com/felixge/node-mysql#pooling-connections" target="_blank" rel="noopener">https://github.com/felixge/node-mysql#pooling-connections</a></li>
+<li><a href="https://github.com/felixge/node-mysql/issues/712" target="_blank" rel="noopener">https://github.com/felixge/node-mysql/issues/712</a></li>
+<li><a href="http://dev.mysql.com/doc/refman/5.5/en/too-many-connections.html" target="_blank" rel="noopener">http://dev.mysql.com/doc/refman/5.5/en/too-many-connections.html</a></li>
+<li><a href="http://www.cnblogs.com/zhoujinyi/p/3437475.html" target="_blank" rel="noopener">http://www.cnblogs.com/zhoujinyi/p/3437475.html</a></li>
+<li><a href="http://stackoverflow.com/questions/5836623/getting-lock-wait-timeout-exceeded-try-restarting-transaction-even-though-im" target="_blank" rel="noopener">http://stackoverflow.com/questions/5836623/getting-lock-wait-timeout-exceeded-try-restarting-transaction-even-though-im</a></li>
+<li><a href="https://www.percona.com/blog/2015/04/09/innodb-locks-deadlocks-without-index-different-isolation-level/" target="_blank" rel="noopener">https://www.percona.com/blog/2015/04/09/innodb-locks-deadlocks-without-index-different-isolation-level/</a></li>
+</ul>
+<p>本文采用 <a href="http://creativecommons.org/licenses/by/3.0/cn" target="_blank" rel="noopener">知识共享署名 3.0 中国大陆许可协议</a>，可自由转载、引用，但需署名作者且注明文章出处 。</p>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2015/12/29/deep-about-npm-install-and-update/" rel="next" title="深入 Node 模块的安装和发布">
+                <i class="fa fa-chevron-left"></i> 深入 Node 模块的安装和发布
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/01/12/tour-for-date-in-js-and-mysql/" rel="prev" title="关于“时间”的一次探索">
+                关于“时间”的一次探索 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/01/06/about-a-sql-debug/" data-title="记一次 MySQL 数据库问题排查" data-url="http://kohpoll.github.io/blog/2016/01/06/about-a-sql-debug/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="https://avatars3.githubusercontent.com/u/1203543?v=3&s=460" alt="kohpoll">
+          <p class="site-author-name" itemprop="name">kohpoll</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/blog/archives">
+              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#问题-1：占着茅坑不拉屎"><span class="nav-number">1.</span> <span class="nav-text">问题 1：占着茅坑不拉屎</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#问题-2：一条-UPDATE-引发的血案"><span class="nav-number">2.</span> <span class="nav-text">问题 2：一条 UPDATE 引发的血案</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">kohpoll</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/blog/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v="></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v="></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/affix.js?v="></script>
+
+  <script type="text/javascript" src="/blog/js/src/schemes/pisces.js?v="></script>
+
+
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v="></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v="></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v="></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"kohpoll"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>

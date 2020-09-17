@@ -1,0 +1,572 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/blog/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+<link href="/blog/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/blog/css/main.css?v=" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="Node.js,JavaScript,Frontend Engineer">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="最近在用子进程运行 gulpfile.js 的时候发现终端上的颜色全部没有了，很是奇怪。经过一些研究，最终解决了问题，同时也总结了一些相关知识。希望对你有帮助。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在 spawn 的子进程中保持命令行颜色">
+<meta property="og:url" content="http://kohpoll.github.io/blog/2016/09/15/spawn-and-terminal-color/index.html">
+<meta property="og:site_name" content="kohpoll&#39;s blog">
+<meta property="og:description" content="最近在用子进程运行 gulpfile.js 的时候发现终端上的颜色全部没有了，很是奇怪。经过一些研究，最终解决了问题，同时也总结了一些相关知识。希望对你有帮助。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-09-17T08:30:49.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="在 spawn 的子进程中保持命令行颜色">
+<meta name="twitter:description" content="最近在用子进程运行 gulpfile.js 的时候发现终端上的颜色全部没有了，很是奇怪。经过一些研究，最终解决了问题，同时也总结了一些相关知识。希望对你有帮助。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"hide"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 在 spawn 的子进程中保持命令行颜色 | kohpoll's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="http://s6.cnzz.com/stat.php?id=1258937997&web_id=1258937997" type="text/javascript"></script>
+  </div>
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">kohpoll's blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                在 spawn 的子进程中保持命令行颜色
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-15T00:00:00+08:00" content="2016-09-15">
+              2016-09-15
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2016/09/15/spawn-and-terminal-color/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/15/spawn-and-terminal-color/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近在用子进程运行 gulpfile.js 的时候发现终端上的颜色全部没有了，很是奇怪。经过一些研究，最终解决了问题，同时也总结了一些相关知识。希望对你有帮助。</p>
+<a id="more"></a>
+<h2 id="终端颜色"><a href="#终端颜色" class="headerlink" title="终端颜色"></a>终端颜色</h2><p>相信大家都知道，我们平常使用的 terminal 是可以输出各种颜色的，并不仅仅只是充满 geek 味道的黑绿。这些颜色其实是通过一种叫做 <code>ANSI/VT100</code> 控制序列来标记的，这些字符本身不可见，会被 shell 解析后使用合适的颜色来渲染。</p>
+<p>比如，命令 <code>echo -e &quot;\033[31m red \033[39m&quot;</code> 就可以在终端打印红色的文字。</p>
+<p>其中的 <code>\033[31m</code>、<code>\033[39m</code> 就是特殊的控制序列，<code>\033[31m</code> 表示红色的前景（文字）色，<code>\033[39m</code> 表示默认的前景（文字）色。而选项 <code>-e</code> 则是让 <code>echo</code> 启用反斜杠控制字符的转换（默认是不转换的）。</p>
+<p>实际上，我们还可以使用 <code>echo -e &quot;\x1b[31m red \x1b[39m&quot;</code> 来输出红色文字。<code>\x1b</code> 是十六进制表示，刚好等于八进制表示的 <code>033</code>。</p>
+<p>除了前景色，还可以通过序列来表示背景色。更多的序列，可以参考：<a href="http://misc.flogisoft.com/bash/tip_colors_and_formatting" target="_blank" rel="noopener">http://misc.flogisoft.com/bash/tip_colors_and_formatting</a>。</p>
+<p>那在 Node 中我们该如何打印带颜色的内容呢？其实很简单，我们只要使用一样的控制序列就可以了。</p>
+<p>比如下面的代码，都可以打印红色文字。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(<span class="string">'\u001b[31m red \u001b[39m'</span>);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'\033[31m red \033[39m'</span>); <span class="comment">// 这行代码在 strict 模式下将会报错</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'\x1b[31m red \x1b[39m'</span>);</span><br></pre></td></tr></table></figure>
+<p>但是这么多的控制序列很难记住，写起来很麻烦，给别人看更是如天书一般难懂。我推荐直接使用 <a href="https://github.com/chalk/chalk" target="_blank" rel="noopener">chalk</a> 这样的 npm 包，代码瞬间简洁、清晰了许多：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> chalk = <span class="built_in">require</span>(<span class="string">'chalk'</span>);</span><br><span class="line"><span class="built_in">console</span>.log(chalk.red(<span class="string">'red'</span>));</span><br></pre></td></tr></table></figure>
+<p><code>chalk</code> 实际上直接使用了 <a href="https://github.com/chalk/ansi-styles" target="_blank" rel="noopener">ansi-styles</a> 这个包，从其源码中可以看到，原理就是对字符串增加特殊的控制序列：<a href="https://github.com/chalk/ansi-styles/blob/master/index.js" target="_blank" rel="noopener">https://github.com/chalk/ansi-styles/blob/master/index.js</a></p>
+<h2 id="spawn"><a href="#spawn" class="headerlink" title="spawn"></a>spawn</h2><p>我在之前的<a href="https://kohpoll.github.io/blog/2016/04/25/about-the-node-child-process/">文章</a>中介绍过 Node 子进程的用法，感兴趣的可以进行阅读。</p>
+<p>我比较喜欢使用 <code>spawn</code> 的方式，因为它可以通过 stream 的方式操作子进程的输出，非常方便。比如下面的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> log = [];</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>);</span><br><span class="line"><span class="keyword">const</span> child = <span class="built_in">require</span>(<span class="string">'child_process'</span>).spawn(</span><br><span class="line">  <span class="string">'node'</span>,</span><br><span class="line">  [</span><br><span class="line">    <span class="built_in">require</span>.resolve(<span class="string">'gulp/bin/gulp'</span>),</span><br><span class="line">    <span class="string">'--gulpfile'</span>, path.join(__dirname, <span class="string">'gulpfile.js'</span>),</span><br><span class="line">    <span class="string">'--cwd'</span>, process.cwd()  </span><br><span class="line">  ],</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="string">'stdio'</span>: <span class="string">'pipe'</span>,</span><br><span class="line">    <span class="string">'cwd'</span>: process.cwd()</span><br><span class="line">  &#125;</span><br><span class="line">);</span><br><span class="line">child.stdout.pipe(process.stdout);</span><br><span class="line">child.stdout.on(<span class="string">'data'</span>, (data) =&gt; &#123;</span><br><span class="line">  <span class="comment">// collect the data</span></span><br><span class="line">  log.push(data.toString(<span class="string">'utf8'</span>))</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>这里指定 <code>stdio: &#39;pipe&#39;</code> 后，我们可以操作子进程的 <code>stdout</code>，比如将它的输出收集起来然后写入数据库做记录之类的。</p>
+<p>如果尝试运行上面的脚本会发现，之前直接通过 <code>gulp</code> 执行 <code>gulpfile.js</code> 时漂亮的颜色消失了，全部变成默认颜色了。</p>
+<h2 id="process-stdout-isTTY"><a href="#process-stdout-isTTY" class="headerlink" title="process.stdout.isTTY"></a>process.stdout.isTTY</h2><p>实际上，在 Node 中执行的进程我们可以通过 <code>process.stdout.isTTY</code> 这个属性来判断它是否在终端（terminal）终端环境中执行。</p>
+<p>通过 <code>spawn</code> 并配置了 <code>stdio: &#39;pipe&#39;</code> 开启的子进程，<code>process.stdout.isTTY</code> 属性会是 <code>undefined</code>。</p>
+<p>比如下面的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// parent.js</span></span><br><span class="line"><span class="keyword">const</span> child = <span class="built_in">require</span>(<span class="string">'child_process'</span>).spawn(</span><br><span class="line">  <span class="string">'node'</span>, [<span class="string">'./child.js'</span>],</span><br><span class="line">  &#123;<span class="string">'stdio'</span>: <span class="string">'pipe'</span>&#125;</span><br><span class="line">);</span><br><span class="line">child.stdout.pipe(process.stdout);</span><br><span class="line"></span><br><span class="line"><span class="comment">// child.js</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'process.stdout.isTTY='</span>, process.stdout.isTTY);</span><br></pre></td></tr></table></figure>
+<p>在终端执行 <code>node parent.js</code> 会输出 <code>process.stdout.isTTY= undefined</code>。</p>
+<p>单独执行 <code>node child.js</code> 会输出 <code>process.stdout.isTTY= true</code>。</p>
+<p><code>gulp</code> 背后的颜色功能，实际上使用的是 <code>chalk</code>。</p>
+<p><code>chalk</code> 会使用 <a href="https://github.com/chalk/supports-color" target="_blank" rel="noopener">supports-color</a> 做是否支持终端颜色的判断。从其源码中我们看到，它正是通过 <code>process.stdout.isTTY</code> 来进行判断的，如果该属性不为 <code>true</code>，则认为不支持：<a href="https://github.com/chalk/supports-color/blob/master/index.js#L41" target="_blank" rel="noopener">https://github.com/chalk/supports-color/blob/master/index.js#L41</a></p>
+<p>因此，由于被认为是在不支持终端颜色的环境中执行，我们之前代码中的所有输出就都不再带有颜色了。</p>
+<p>另外我们还看到，<code>supports-color</code> 还会检查命令行参数中是否有 <code>--color</code> 选项，如果有的话就直接启用，不再检查 <code>proess.stdout.isTTY</code>。这正是我要的解决方案，于是，将代码修改成如下后，问题得到解决：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> log = [];</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>);</span><br><span class="line"><span class="keyword">const</span> child = <span class="built_in">require</span>(<span class="string">'child_process'</span>).spawn(</span><br><span class="line">  <span class="string">'node'</span>,</span><br><span class="line">  [</span><br><span class="line">    <span class="built_in">require</span>.resolve(<span class="string">'gulp/bin/gulp'</span>),</span><br><span class="line">    <span class="string">'--gulpfile'</span>, path.join(__dirname, <span class="string">'gulpfile.js'</span>),</span><br><span class="line">    <span class="string">'--cwd'</span>, process.cwd(),</span><br><span class="line">    <span class="string">'--color'</span> <span class="comment">// preserve the terminal color  </span></span><br><span class="line">  ],</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="string">'stdio'</span>: <span class="string">'pipe'</span>,</span><br><span class="line">    <span class="string">'cwd'</span>: process.cwd()</span><br><span class="line">  &#125;</span><br><span class="line">);</span><br><span class="line">child.stdout.pipe(process.stdout);</span><br><span class="line">child.stdout.on(<span class="string">'data'</span>, (data) =&gt; &#123;</span><br><span class="line">  <span class="comment">// collect the data</span></span><br><span class="line">  log.push(data.toString(<span class="string">'utf8'</span>))</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h2 id="stdio-inherit"><a href="#stdio-inherit" class="headerlink" title="stdio: inherit"></a>stdio: inherit</h2><p>实际上，我们也可以指定 <code>stdio: &#39;inherit&#39;</code> 来让子进程直接使用父进程的 IO。这时子进程的 <code>process.stdout.isTTY</code> 会是 <code>true</code>。这是因为直接使用了父进程的 IO，所以它实际上还是在终端环境中执行的。</p>
+<p>但是，这个方法会导致子进程不再拥有 <code>stdout</code> 属性，无法通过代码获取到子进程的任何标准输出，所以我最终并没有采用。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="http://misc.flogisoft.com/bash/tip_colors_and_formatting" target="_blank" rel="noopener">http://misc.flogisoft.com/bash/tip_colors_and_formatting</a></li>
+<li><a href="https://github.com/chalk/chalk" target="_blank" rel="noopener">https://github.com/chalk/chalk</a></li>
+<li><a href="https://nodejs.org/dist/latest-v4.x/docs/api/process.html#process_process_stdout" target="_blank" rel="noopener">https://nodejs.org/dist/latest-v4.x/docs/api/process.html#process_process_stdout</a></li>
+<li><a href="https://nodejs.org/dist/latest-v4.x/docs/api/child_process.html#child_process_options_stdio" target="_blank" rel="noopener">https://nodejs.org/dist/latest-v4.x/docs/api/child_process.html#child_process_options_stdio</a></li>
+<li><a href="https://nodejs.org/dist/latest-v4.x/docs/api/child_process.html#child_process_child_stdout" target="_blank" rel="noopener">https://nodejs.org/dist/latest-v4.x/docs/api/child_process.html#child_process_child_stdout</a></li>
+</ul>
+<p>本文采用 <a href="http://creativecommons.org/licenses/by/3.0/cn" target="_blank" rel="noopener">知识共享署名 3.0 中国大陆许可协议</a>，可自由转载、引用，但需署名作者且注明文章出处 。</p>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/05/30/hardlink-symlink-require-in-nodejs/" rel="next" title="纠结的链接——ln、ln -s、fs.symlink、require">
+                <i class="fa fa-chevron-left"></i> 纠结的链接——ln、ln -s、fs.symlink、require
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2017/06/06/the-right-way-to-do-update-check-in-cli-tool/" rel="prev" title="Node.js 命令行工具检查更新的正确姿势">
+                Node.js 命令行工具检查更新的正确姿势 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/15/spawn-and-terminal-color/" data-title="在 spawn 的子进程中保持命令行颜色" data-url="http://kohpoll.github.io/blog/2016/09/15/spawn-and-terminal-color/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="https://avatars3.githubusercontent.com/u/1203543?v=3&s=460" alt="kohpoll">
+          <p class="site-author-name" itemprop="name">kohpoll</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/blog/archives">
+              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#终端颜色"><span class="nav-number">1.</span> <span class="nav-text">终端颜色</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#spawn"><span class="nav-number">2.</span> <span class="nav-text">spawn</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#process-stdout-isTTY"><span class="nav-number">3.</span> <span class="nav-text">process.stdout.isTTY</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#stdio-inherit"><span class="nav-number">4.</span> <span class="nav-text">stdio: inherit</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">kohpoll</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/blog/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v="></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v="></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/affix.js?v="></script>
+
+  <script type="text/javascript" src="/blog/js/src/schemes/pisces.js?v="></script>
+
+
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v="></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v="></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v="></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"kohpoll"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>

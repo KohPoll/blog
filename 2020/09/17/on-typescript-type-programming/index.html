@@ -1,0 +1,568 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/blog/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+<link href="/blog/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/blog/css/main.css?v=" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="Node.js,JavaScript,Frontend Engineer">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="平常我们编写 TypeScript 时，主要会使用类型注解（给变量、函数等加上类型约束），这可以增强代码可读性、避免低级 bug。实际上 TypeScript 的类型系统设计的非常强大，强大到可以单独作为一门编程语言。本文是自己学习 TypeScript 类型编程的一个总结，希望对你有帮助。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="初探 TypeScript 类型编程">
+<meta property="og:url" content="http://kohpoll.github.io/blog/2020/09/17/on-typescript-type-programming/index.html">
+<meta property="og:site_name" content="kohpoll&#39;s blog">
+<meta property="og:description" content="平常我们编写 TypeScript 时，主要会使用类型注解（给变量、函数等加上类型约束），这可以增强代码可读性、避免低级 bug。实际上 TypeScript 的类型系统设计的非常强大，强大到可以单独作为一门编程语言。本文是自己学习 TypeScript 类型编程的一个总结，希望对你有帮助。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-09-17T08:39:35.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="初探 TypeScript 类型编程">
+<meta name="twitter:description" content="平常我们编写 TypeScript 时，主要会使用类型注解（给变量、函数等加上类型约束），这可以增强代码可读性、避免低级 bug。实际上 TypeScript 的类型系统设计的非常强大，强大到可以单独作为一门编程语言。本文是自己学习 TypeScript 类型编程的一个总结，希望对你有帮助。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"hide"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> 初探 TypeScript 类型编程 | kohpoll's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="http://s6.cnzz.com/stat.php?id=1258937997&web_id=1258937997" type="text/javascript"></script>
+  </div>
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">kohpoll's blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                初探 TypeScript 类型编程
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2020-09-17T00:00:00+08:00" content="2020-09-17">
+              2020-09-17
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/blog/2020/09/17/on-typescript-type-programming/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2020/09/17/on-typescript-type-programming/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>平常我们编写 TypeScript 时，主要会使用类型注解（给变量、函数等加上类型约束），这可以增强代码可读性、避免低级 bug。实际上 TypeScript 的类型系统设计的非常强大，强大到可以单独作为一门编程语言。本文是自己学习 TypeScript 类型编程的一个总结，希望对你有帮助。</p>
+<a id="more"></a>
+<h1 id="开始之前"><a href="#开始之前" class="headerlink" title="开始之前"></a>开始之前</h1><p>本文不会对 TypeScript 的基础语法和使用进行说明，你可以参考互联网上提供的优秀资料：</p>
+<ul>
+<li><a href="https://www.typescriptlang.org/docs/handbook/intro.html" target="_blank" rel="noopener">https://www.typescriptlang.org/docs/handbook/intro.html</a></li>
+<li><a href="https://basarat.gitbook.io/typescript/" target="_blank" rel="noopener">https://basarat.gitbook.io/typescript/</a></li>
+</ul>
+<h1 id="启程"><a href="#启程" class="headerlink" title="启程"></a>启程</h1><p>参考 SCIP 中对于编程语言的描述。一门编程语言应该提供以下机制：</p>
+<ul>
+<li>基本表达式。用来表示语言所关心的最简单的个体。</li>
+<li>组合的方法。从简单的个体出发构造复合的对象。</li>
+<li>抽象的方法。能将复合对象封装作为独立单元去使用。</li>
+</ul>
+<p>下面我们将以这三个方面为线索来探索 TypeScript 的类型编程。</p>
+<h1 id="基本表达式"><a href="#基本表达式" class="headerlink" title="基本表达式"></a>基本表达式</h1><p>我们首先来看看类型编程中，定义“变量”的方式：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// string、number、boolean 的值可以作为类型使用，称为 literal type</span></span><br><span class="line"><span class="keyword">type</span> LiteralS = <span class="string">'x'</span>;</span><br><span class="line"><span class="keyword">type</span> LiteralN = <span class="number">9</span>;</span><br><span class="line"><span class="keyword">type</span> LiteralB = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 基础类型</span></span><br><span class="line"><span class="keyword">type</span> S = <span class="built_in">string</span>;</span><br><span class="line"><span class="comment">// 函数</span></span><br><span class="line"><span class="keyword">type</span> F = <span class="function">(<span class="params">flag: <span class="built_in">boolean</span></span>) =&gt;</span> <span class="built_in">void</span>;</span><br><span class="line"><span class="comment">// 对象</span></span><br><span class="line"><span class="keyword">type</span> O = &#123; x: <span class="built_in">number</span>; y: <span class="built_in">number</span>; &#125;;</span><br><span class="line"><span class="comment">// tuple</span></span><br><span class="line"><span class="keyword">type</span> T = [<span class="built_in">string</span>, <span class="built_in">number</span>];</span><br></pre></td></tr></table></figure>
+<p>这里稍微补充下 interface 和 type 的区别。</p>
+<p>最主要的区别就是 type 可以进行“类型编程”，interface 不行。</p>
+<p>interface 能定义的类型比较局限，就是 object/function/class/indexable：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// object</span></span><br><span class="line"><span class="keyword">interface</span> Point &#123;</span><br><span class="line">  x: <span class="built_in">number</span>;</span><br><span class="line">  y: <span class="built_in">number</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> p: Point = &#123; x: <span class="number">1</span>, y: <span class="number">2</span> &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// function</span></span><br><span class="line"><span class="keyword">interface</span> Add &#123;</span><br><span class="line">  (a: <span class="built_in">number</span>, b: <span class="built_in">number</span>): <span class="built_in">number</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> add: Add = <span class="function">(<span class="params">x, y</span>) =&gt;</span> x + y;</span><br><span class="line"></span><br><span class="line"><span class="comment">// class</span></span><br><span class="line"><span class="keyword">interface</span> ClockConstructor &#123;</span><br><span class="line">  <span class="keyword">new</span> (hour: <span class="built_in">number</span>, minute: <span class="built_in">number</span>): ClockInterface;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">interface</span> ClockInterface &#123;</span><br><span class="line">  tick(): <span class="built_in">void</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> Clock: ClockConstructor = <span class="keyword">class</span> C <span class="keyword">implements</span> ClockInterface &#123;</span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params">hour: <span class="built_in">number</span>, minute: <span class="built_in">number</span></span>) &#123; <span class="keyword">return</span> <span class="keyword">this</span>; &#125;</span><br><span class="line">  tick() &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> c = <span class="keyword">new</span> Clock(<span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line">c.tick();</span><br><span class="line"></span><br><span class="line"><span class="comment">// indexable</span></span><br><span class="line"><span class="keyword">interface</span> StringArray &#123;</span><br><span class="line">  [index: <span class="built_in">number</span>]: <span class="built_in">string</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">interface</span> NumberObject &#123;</span><br><span class="line">  [key: <span class="built_in">string</span>]: <span class="built_in">number</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> s: StringArray = [<span class="string">'a'</span>, <span class="string">'b'</span>];</span><br><span class="line"><span class="keyword">const</span> o: NumberObject = &#123; a: <span class="number">1</span>, b: <span class="number">2</span> &#125;;</span><br></pre></td></tr></table></figure>
+<p>interface 可以被重新“打开”，同名 interface 会自动聚合，非常适合做 polyfill。比如，我们想要在 window 上扩展一些原本不存在的属性：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> Window &#123;</span><br><span class="line">  g_config: &#123;</span><br><span class="line">    locale: <span class="string">'zh_CN'</span> | <span class="string">'en_US'</span>;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="组合的方法"><a href="#组合的方法" class="headerlink" title="组合的方法"></a>组合的方法</h1><p>有了基本表达式，我们来看组合的方法。</p>
+<h2 id="和-amp-操作符"><a href="#和-amp-操作符" class="headerlink" title="| 和 &amp; 操作符"></a>| 和 &amp; 操作符</h2><p>&amp; 表示必须同时满足多个契约，| 表示满足任意一个契约即可。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Size = <span class="string">'large'</span> | <span class="string">'normal'</span> | <span class="string">'small'</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// never 可以理解为 | 运算的“幺元”，即：x | never = x</span></span><br><span class="line"><span class="keyword">type</span> T = <span class="number">1</span> | <span class="number">2</span> | never; <span class="comment">// 1 | 2</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Animal = &#123; name: <span class="built_in">string</span> &#125;;</span><br><span class="line"><span class="keyword">type</span> Flyable = &#123; fly(): <span class="built_in">void</span> &#125;;</span><br><span class="line"><span class="keyword">type</span> FlyableAnimal = Animal &amp; Flyable; <span class="comment">// &#123; name: string, fly(): void &#125;</span></span><br></pre></td></tr></table></figure>
+<h2 id="keyof-操作符"><a href="#keyof-操作符" class="headerlink" title="keyof 操作符"></a>keyof 操作符</h2><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> Sizes &#123;</span><br><span class="line">  large: <span class="built_in">string</span>;</span><br><span class="line">  normal: <span class="built_in">string</span>;</span><br><span class="line">  small: <span class="built_in">string</span>;</span><br><span class="line">  x: <span class="built_in">number</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 获取对象的属性值</span></span><br><span class="line"><span class="keyword">type</span> Size = keyof Sizes; <span class="comment">// 'large' | 'normal' | 'small' | 'x'</span></span><br><span class="line"><span class="comment">// 反向获取对象属性的类型</span></span><br><span class="line"><span class="keyword">type</span> SizeValue = Sizes[keyof Sizes]; <span class="comment">// string | number</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// keyof any 可以理解为能作为“索引”的类型</span></span><br><span class="line"><span class="keyword">type</span> K = keyof <span class="built_in">any</span>; <span class="comment">// string | number | symbol</span></span><br></pre></td></tr></table></figure>
+<h1 id="抽象的方法"><a href="#抽象的方法" class="headerlink" title="抽象的方法"></a>抽象的方法</h1><p>抽象的方法实际上指的就是“函数”。我们来看看类型编程中，“函数”该怎么定义。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// “定义”</span></span><br><span class="line"><span class="keyword">type</span> Id&lt;T&gt; = T;</span><br><span class="line"><span class="comment">// “调用”</span></span><br><span class="line"><span class="keyword">type</span> A = Id&lt;<span class="string">'a'</span>&gt;; <span class="comment">// 'a'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// “参数”约束及默认值</span></span><br><span class="line"><span class="keyword">type</span> MakePair&lt;T <span class="keyword">extends</span> <span class="built_in">string</span>, U <span class="keyword">extends</span> <span class="built_in">number</span> = <span class="number">1</span>&gt; = [T, U];</span><br><span class="line"><span class="keyword">type</span> P1 = MakePair&lt;<span class="string">'a'</span>, <span class="number">2</span>&gt;; <span class="comment">// ['a', 2]</span></span><br><span class="line"><span class="keyword">type</span> P2 = MakePair&lt;<span class="string">'x'</span>&gt;; <span class="comment">// ['x', 1]</span></span><br></pre></td></tr></table></figure>
+<p>看起来是不是和编程语言里面的函数很相似？这些“函数”的输入（参数）是类型，经过“运算”后，输出是“类型”。接着我们来看看在“函数体”（也就是等号右边）里面除了一些基本操作外，还可以做些其他什么骚操作。</p>
+<h2 id="“映射”操作（mapped）"><a href="#“映射”操作（mapped）" class="headerlink" title="“映射”操作（mapped）"></a>“映射”操作（mapped）</h2><p>将已有类型转换为一个新的类型，类似 map。返回的新类型一般是对象。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MakeRecord&lt;T <span class="keyword">extends</span> keyof <span class="built_in">any</span>, V&gt; = &#123;</span><br><span class="line">  [k <span class="keyword">in</span> T]: V</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">type</span> R1 = MakeRecord&lt;<span class="number">1</span>, <span class="built_in">number</span>&gt;; <span class="comment">// &#123; 1: number &#125;</span></span><br><span class="line"><span class="keyword">type</span> R2 = MakeRecord&lt;<span class="string">'a'</span> | <span class="number">1</span>, <span class="built_in">string</span>&gt;; <span class="comment">// &#123; a: string, 1: string &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> TupleToObject&lt;T <span class="keyword">extends</span> readonly <span class="built_in">any</span>[]&gt; = &#123;</span><br><span class="line">  [k <span class="keyword">in</span> T[<span class="built_in">number</span>]]: k</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">type</span> O = TupleToObject&lt;[<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>]&gt;; <span class="comment">// &#123; a: 'a', b: 'b', c: 'c' &#125;</span></span><br></pre></td></tr></table></figure>
+<h2 id="条件——extends"><a href="#条件——extends" class="headerlink" title="条件——extends"></a>条件——extends</h2><p>条件类型可以理解为“三元运算”，T extends U ? X : Y，extends 可以类比为“相等”。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 只保留string</span></span><br><span class="line"><span class="keyword">type</span> OnlyString&lt;T&gt; = T <span class="keyword">extends</span> <span class="built_in">string</span> ? T : never;</span><br><span class="line"><span class="keyword">type</span> S = OnlyString&lt;<span class="number">1</span> | <span class="number">2</span> | <span class="literal">true</span> | <span class="string">'a'</span> | <span class="string">'b'</span>&gt;; <span class="comment">// 'a' | 'b'</span></span><br><span class="line"><span class="comment">// 这里的计算过程大致是：</span></span><br><span class="line"><span class="comment">// 1 | 2 | true | 'a' | 'b' -&gt; never | never | never | 'a' | 'b'</span></span><br><span class="line"><span class="comment">// 根据 x | never = x，最终得到 'a' | 'b'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 获得对象的函数类型的属性key值</span></span><br><span class="line"><span class="keyword">type</span> FunctionPropertyNames&lt;T&gt; = &#123;</span><br><span class="line">  [k <span class="keyword">in</span> keyof T]: T[k] <span class="keyword">extends</span> <span class="built_in">Function</span> ? k : never</span><br><span class="line">&#125;[keyof T];</span><br><span class="line"><span class="keyword">interface</span> D &#123;</span><br><span class="line">  id: <span class="built_in">number</span>;</span><br><span class="line">  add(id: <span class="built_in">number</span>): <span class="built_in">void</span>;</span><br><span class="line">  remove(id: <span class="built_in">number</span>): <span class="built_in">void</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">type</span> P = FunctionPropertyNames&lt;D&gt;; <span class="comment">// 'add' | 'remove'</span></span><br><span class="line"><span class="comment">// 这里的计算过程大致是：</span></span><br><span class="line"><span class="comment">// 将 interface 展开：</span></span><br><span class="line"><span class="comment">// &#123;</span></span><br><span class="line"><span class="comment">//   id: D['id'] extends Function ? 'id' : never,            //-&gt; false</span></span><br><span class="line"><span class="comment">//   add: D['add'] extends Function ? 'add' : never,         //-&gt; true</span></span><br><span class="line"><span class="comment">//   remove: D['remove'] extends Function ? 'remove' : never //-&gt; true</span></span><br><span class="line"><span class="comment">// &#125;['id' | 'add' | 'remove']</span></span><br><span class="line"><span class="comment">// 计算条件类型：</span></span><br><span class="line"><span class="comment">// &#123;</span></span><br><span class="line"><span class="comment">//   id: never,</span></span><br><span class="line"><span class="comment">//.  add: 'add',</span></span><br><span class="line"><span class="comment">//   remove: 'remove'</span></span><br><span class="line"><span class="comment">// &#125;['id' | 'add' | 'remove']</span></span><br><span class="line"><span class="comment">// 根据索引取值：</span></span><br><span class="line"><span class="comment">// never | 'add' | 'remove'</span></span><br><span class="line"><span class="comment">// 根据 never | x = x，最终得到：'add' | 'remove'</span></span><br></pre></td></tr></table></figure>
+<h2 id="“析构“——infer"><a href="#“析构“——infer" class="headerlink" title="“析构“——infer"></a>“析构“——infer</h2><p>infer 可以理解为一种“放大镜”机制，可以“捕获”到被“嵌”在各种复杂结构里的类型信息。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 对象 infer，可以取得对象某个属性值的类型</span></span><br><span class="line"><span class="keyword">type</span> ObjectInfer&lt;O&gt; = O <span class="keyword">extends</span> &#123; x: infer T &#125; ? T : never;</span><br><span class="line"><span class="keyword">type</span> T1 = ObjectInfer&lt;&#123;x: <span class="built_in">number</span>&#125;&gt;; <span class="comment">// number</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 数组 infer，可以取得数组元素的类型</span></span><br><span class="line"><span class="keyword">type</span> ArrayInfer&lt;A&gt; = A <span class="keyword">extends</span> (infer U)[] ? U : never;</span><br><span class="line"><span class="keyword">const</span> arr = [<span class="number">1</span>, <span class="string">'a'</span>, <span class="literal">true</span>];</span><br><span class="line"><span class="keyword">type</span> T2 = ArrayInfer&lt;<span class="keyword">typeof</span> arr&gt;; <span class="comment">// number | string | boolean</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// tuple infer</span></span><br><span class="line"><span class="keyword">type</span> TupleInfer&lt;T&gt; = T <span class="keyword">extends</span> [infer A, ...(infer B)[]] ? [A, B] : never;</span><br><span class="line"><span class="keyword">type</span> T3 = TupleInfer&lt;[<span class="built_in">string</span>, <span class="built_in">number</span>, <span class="built_in">boolean</span>]&gt;; <span class="comment">// [string, number | boolean]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 函数 infer，可以取得函数的参数和返回值类型</span></span><br><span class="line"><span class="keyword">type</span> FunctionInfer&lt;F&gt; = F <span class="keyword">extends</span> (...args: infer A) =&gt; infer R ? [A, R] : never;</span><br><span class="line"><span class="keyword">type</span> T4 = FunctionInfer&lt;<span class="function">(<span class="params">a: <span class="built_in">number</span>, b: <span class="built_in">string</span></span>) =&gt;</span> <span class="built_in">boolean</span>&gt;; <span class="comment">// [[a: number, b: string], boolean]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 更多其他的 infer</span></span><br><span class="line"><span class="keyword">type</span> PInfer&lt;P&gt; = P <span class="keyword">extends</span> <span class="built_in">Promise</span>&lt;infer G&gt; ? G : never;</span><br><span class="line"><span class="keyword">const</span> p = <span class="keyword">new</span> <span class="built_in">Promise</span>&lt;<span class="built_in">number</span>&gt;<span class="function">(<span class="params">(<span class="params"></span>) =&gt; &#123;&#125;</span>);</span></span><br><span class="line"><span class="function"><span class="params">type</span> <span class="params">T5</span> = <span class="params">PInfer</span>&lt;<span class="params">typeof</span> <span class="params">p</span>&gt;; // <span class="params">number</span></span></span><br></pre></td></tr></table></figure>
+<p>可以发现上面的例子需要使用 infer，是因为我们在“定义”时不知道具体的类型，需要在“调用”时做“推断”。infer 帮我们标注了待推断的类型，最终计算出实际的类型。</p>
+<h2 id="嵌套-amp-递归"><a href="#嵌套-amp-递归" class="headerlink" title="嵌套&amp;递归"></a>嵌套&amp;递归</h2><p>在“函数体”中，我们其实可以再“调用函数“，形成一种嵌套和递归的机制。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 取函数第一个参数的类型</span></span><br><span class="line"><span class="keyword">type</span> Params&lt;F&gt; = F <span class="keyword">extends</span> (...args: infer A) =&gt; <span class="built_in">any</span> ? A : never;</span><br><span class="line"><span class="keyword">type</span> Head&lt;T <span class="keyword">extends</span> <span class="built_in">any</span>[]&gt; = T <span class="keyword">extends</span> [<span class="built_in">any</span>, ...any[]] ? T[<span class="number">0</span>] : never;</span><br><span class="line"><span class="keyword">type</span> FirstParam = Head&lt;Params&lt;<span class="function">(<span class="params">name: <span class="built_in">string</span>, age: <span class="built_in">number</span></span>) =&gt;</span> <span class="built_in">void</span>&gt;&gt;; <span class="comment">// string</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 递归定义</span></span><br><span class="line"><span class="keyword">type</span> List&lt;T&gt; = &#123;</span><br><span class="line">  value: T,</span><br><span class="line">  next: List&lt;T&gt;</span><br><span class="line">&#125; | <span class="literal">null</span>;</span><br></pre></td></tr></table></figure>
+<h1 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h1><p>文章写到这里基本就结束了，这篇文章的内容可能在平常的开发中会比较少遇到，但是对于补全自己的 TypeScript 体系、开阔视野还是有所帮助的。如果想更多的来些实战演练，推荐看看这个：<a href="https://github.com/type-challenges/type-challenges" target="_blank" rel="noopener">https://github.com/type-challenges/type-challenges</a></p>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2017/06/06/the-right-way-to-do-update-check-in-cli-tool/" rel="next" title="Node.js 命令行工具检查更新的正确姿势">
+                <i class="fa fa-chevron-left"></i> Node.js 命令行工具检查更新的正确姿势
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2020/09/17/on-typescript-type-programming/" data-title="初探 TypeScript 类型编程" data-url="http://kohpoll.github.io/blog/2020/09/17/on-typescript-type-programming/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="https://avatars3.githubusercontent.com/u/1203543?v=3&s=460" alt="kohpoll">
+          <p class="site-author-name" itemprop="name">kohpoll</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/blog/archives">
+              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#开始之前"><span class="nav-number">1.</span> <span class="nav-text">开始之前</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#启程"><span class="nav-number">2.</span> <span class="nav-text">启程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基本表达式"><span class="nav-number">3.</span> <span class="nav-text">基本表达式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#组合的方法"><span class="nav-number">4.</span> <span class="nav-text">组合的方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#和-amp-操作符"><span class="nav-number">4.1.</span> <span class="nav-text">| 和 &amp; 操作符</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#keyof-操作符"><span class="nav-number">4.2.</span> <span class="nav-text">keyof 操作符</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#抽象的方法"><span class="nav-number">5.</span> <span class="nav-text">抽象的方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#“映射”操作（mapped）"><span class="nav-number">5.1.</span> <span class="nav-text">“映射”操作（mapped）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#条件——extends"><span class="nav-number">5.2.</span> <span class="nav-text">条件——extends</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#“析构“——infer"><span class="nav-number">5.3.</span> <span class="nav-text">“析构“——infer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#嵌套-amp-递归"><span class="nav-number">5.4.</span> <span class="nav-text">嵌套&amp;递归</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#尾声"><span class="nav-number">6.</span> <span class="nav-text">尾声</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">kohpoll</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/blog/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v="></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v="></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/affix.js?v="></script>
+
+  <script type="text/javascript" src="/blog/js/src/schemes/pisces.js?v="></script>
+
+
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v="></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v="></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v="></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"kohpoll"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>
